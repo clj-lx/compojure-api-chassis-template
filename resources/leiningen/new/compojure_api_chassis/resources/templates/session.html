@@ -1,0 +1,39 @@
+{{=<% %>=}}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Welcome to Chassis</title>
+</head>
+<body>
+<div class="container">
+
+    <h1>Session</h1>
+    <pre>
+    {{session}}
+    </pre>
+
+    <ul>
+        <%#oauth2-hook?%>
+        <li><a href="/admin">admin</a></li>
+        <li><a href="/authlink">authlink</a></li>
+        <li><a href="/authlink2">authlink2</a></li>
+        <%/oauth2-hook?%>
+        <li><a href="/session">Session</a></li>
+        <%#oauth2-hook?%>
+        <li><a href="/logout">logout</a></li>
+        <%/oauth2-hook?%>
+        <li>
+            resource at /public/lisplogo_256.png
+            <img src="/public/lisplogo_256.png">
+        </li>
+    </ul>
+
+</div>
+
+
+</body>
+</html>
+
+<%={{ }}=%>
