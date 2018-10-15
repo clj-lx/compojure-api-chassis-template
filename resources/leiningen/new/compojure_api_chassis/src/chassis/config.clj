@@ -6,6 +6,7 @@
             [clojure.java.io :as io])
   (:import [java.io File]))
 
+
 (defn- read-env-file
   "read environment variable definitions from file into a map."
   ([^File file]
@@ -26,10 +27,13 @@
          (.printStackTrace e)
          (throw (Error. (format "Could not load configuration file: %s" (.getCanonicalPath file)))))))))
 
-(defn populate-from-properties-file [^String file]
+(defn inject-system-properties-from-file!
+  "helper method that reads from a `.env` style file and writes to `System/properties`
+  the file should have the format `KEY=value`"
+  [^String file]
   (let [kvs (read-env-file (io/as-file file))]
-    (doall
-      (map (fn [[k v]] (System/setProperty k v )) kvs))))
+    (doseq [[k v] kvs]
+      (System/setProperty k v))))
 
 (defn init [cli-args]
   (cfg/define
