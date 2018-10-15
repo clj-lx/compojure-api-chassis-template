@@ -26,6 +26,9 @@
 (defn validate-opts [opts]
   (let [invalid-opts (remove (set valid-opts) opts)]
     (cond
+      (and (some #{"+oauth2"} opts) (not (some #{"+html"} opts)))
+      ("you can't use oauth2 without html")
+
       (seq invalid-opts)
       (str "invalid options supplied: " (clojure.string/join " " invalid-opts)
            "\nvalid options are: " (join " " valid-opts)))))
@@ -47,6 +50,7 @@
   (let [data (template-data name opts)
         args [data
               ["project.clj" (render "project.clj" data)]
+              ["Procfile" (render "Procfile" data)]
               ["README.md"  (render "README.md" data)]
               [".gitignore"  (render ".gitignore" data)]
               ["config.edn"  (render "config.edn" data)]
@@ -89,8 +93,16 @@
         ]
     args))
 
-
-(defn compojure-api-chassis [name & opts]
+;;docstring is for using > lein new :show compojure-api-chassis
+(defn compojure-api-chassis
+  "Usage:
+    > lein new compojure-api-chassis <opts>
+  Options are:
+  +pgsql:  use postgres
+  +html:   use html templating
+  +oauth2: use oauth2 for html templating
+  "
+  [name & opts]
   (main/info "Generating fresh 'lein new' compojure-api-chassis project.")
   (if-let [error (validate-opts opts)]
     (println error)

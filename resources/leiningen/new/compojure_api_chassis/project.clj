@@ -26,15 +26,23 @@
                  [org.clojure/tools.logging "0.4.1"]
                  [ch.qos.logback/logback-classic "1.2.3"]
 
+                 {{#html-hook?}}
                  ;;UI
                  [selmer "1.12.1"]
+                 {{/html-hook?}}
+
+                 {{#oauth2-hook?}}
                  ;;oauth2 support for web UI
                  [clojusc/friend-oauth2 "0.2.0"]
+                 {{/oauth2-hook?}}
 
-                 ;; SQL                                  
+                 {{#pgsql-hook?}}
+                 ;; SQL
                  [org.postgresql/postgresql "42.2.5.jre7"]
                  [hikari-cp "2.6.0"]
-                 [migratus "1.0.9"]]
+                 [migratus "1.0.9"]
+                 {{/pgsql-hook?}}
+                 ]
 
   ;:repositories {"local" ~(str (.toURI (java.io.File. "local_repo")))}
   :checksum :ignore
@@ -52,12 +60,14 @@
          :uberwar-name "{{name}}.war"}
 
   :aliases {"verify"     ["run" "-m" "{{project-ns}}.main/verify"]
-            "migrations" ["run" "-m" "{{project-ns}}.db/migrations"]
+            {{#pgsql-hook?}} "migrations" ["run" "-m" "{{project-ns}}.db/migrations"] {{/pgsql-hook?}}
             "jwt-sign"   ["run" "-m" "{{project-ns}}.auth.rules/jwt-sign"]}
 
   :uberjar-name "{{name}}.jar"
   :profiles {:uberjar {:aot :all
                        :main {{project-ns}}.main}
+
+             :production {:env {:prod true}}
 
              :dev     {:source-paths   ["dev"]
                        :resource-paths ["resources"]
