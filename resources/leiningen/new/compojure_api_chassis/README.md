@@ -8,11 +8,14 @@ An application for FIXME.
 * Compojure-api & swagger 
   * https://github.com/metosin/compojure-api
     * API validation (spec) https://clojure.org/guides/spec
+  * Authentication and authorization via buddy
+    * https://github.com/funcool/buddy-auth
   * Supports Manifold's `deferred`
 * component definition (mount) 
   * https://github.com/tolitius/mount
-* metrics (local jarfile, waiting for async support) 
+* metrics
   * https://github.com/metrics-clojure/metrics-clojure
+  * see `http://localhost:3000/api/spec/metrics` 
 * env loading (omniconf) 
   * https://github.com/grammarly/omniconf
 {{#pgsql-hook?}}
@@ -24,9 +27,8 @@ An application for FIXME.
  * https://github.com/yogthos/Selmer
 {{/html-hook?}}
 {{#oauth2-hook?}}
-* Friend & buddy for oauth & auth
+* Friend for oauth
  * https://github.com/clojusc/friend-oauth2
- * https://github.com/funcool/buddy-auth
 {{/oauth2-hook?}}  
 * reloaded workflow through `mount` and `dev/user.clj`   
 
