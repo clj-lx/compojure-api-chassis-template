@@ -1,8 +1,35 @@
 (ns {{project-ns}}.config
   (:require [omniconf.core :as cfg]
             [mount.core :refer [defstate]]
+            [clojure.string :as str]
             [clojure.tools.logging :as log]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io])
+  (:import [java.io File]))
+
+(defn- read-env-file
+  "read environment variable definitions from file into a map."
+  ([^File file]
+   (when (.isFile file)
+     (try
+       (with-open [rdr (io/reader file)]
+         (->> (line-seq rdr)
+              (map str/trim)
+              (remove str/blank?)
+              (map #(str/split % #"(\s*=\s*)|(:\s+)"))
+              (map (fn [[k v]]
+                     (case v
+                       "\"\"" [k  ""]
+                       nil    [k nil]
+                       [k (str/replace v #"[\"]" "")])))
+              (into {})))
+       (catch Throwable e
+         (.printStackTrace e)
+         (throw (Error. (format "Could not load configuration file: %s" (.getCanonicalPath file)))))))))
+
+(defn populate-from-properties-file [^String file]
+  (let [kvs (read-env-file (io/as-file file))]
+    (doall
+      (map (fn [[k v]] (System/setProperty k v )) kvs))))
 
 (defn init [cli-args]
   (cfg/define
@@ -65,8 +92,8 @@
      :oauth2_redirect_domain {:description "oauth2 redirect domain; the port should be the same as `:server_port`"
                               :default     "http://localhost:3000"
                               :type        :string}
-     {{/oauth2-hook?}}
-     })
+     {{/oauth2-hook?}}})
+
 
   (cfg/populate-from-cmd cli-args)
   (when-let [conf-file (cfg/get :conf-file)]

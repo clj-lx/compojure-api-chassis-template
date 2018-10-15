@@ -13,29 +13,36 @@
 (defn authenticated [request]
   (authenticated? request))
 
+;;example of admin validation
 (defn admin [request]
   (and (authenticated request)
        (#{:admin} (:role (:identity request)))))
 
 ;; backends
-(defn session-backend [_cfg]
-  ;; By default responds with 401 or 403 if unauthorized
-  (session/session-backend))
+(defn handle-unauthorized
+  "A default response constructor for an unauthorized request."
+  [request]
+  (log/info "Unauthorized access. Headers:" (:headers request))
+  (if (authenticated request)
+    {:status 403 :headers {} :body "Permission denied"}
+    {:status 401 :headers {} :body "Unauthorized"}))
 
 (defn token-authfn [_ token]
-  ;;TODO db lookup or whatever
+  (log/info "lookup identity for token" token)
   (get-in config [:api_tokens token]))
 
-(defn token-backend [_cfg]
-  (token/token-backend {:authfn token-authfn}))
+(defn session-backend []
+  (session/session-backend {:unauthorized-handler handle-unauthorized}))
 
-(defn jwt-backend [cfg]
-  (token/jws-backend {:secret (:jwt_key cfg)}))
+(defn token-backend []
+  (token/token-backend {:authfn token-authfn :unauthorized-handler handle-unauthorized}))
+
+(defn jwt-backend [jwt-key]
+  (token/jws-backend {:secret jwt-key :unauthorized-handler handle-unauthorized}))
 
 ;; restructure params
 (defn api-access-error [request _]
-  (log/info "Unauthorized api access. Headers:" (:headers request))
-  {:status 403 :headers {} :body "Unauthorized"})
+  (handle-unauthorized request))
 
 (defn wrap-rule [handler rule]
   (-> handler
@@ -75,7 +82,9 @@
     ::basic-auth
     nil))
 
-(defn wrap-basic-auth [handler _]
+(defn wrap-basic-auth
+  "middleware to apply basic-auth, using a \"Swagger\" realm "
+  [handler _]
   (-> handler
       (wrap-access-rules {:rules basic-auth-rules :on-error on-basic-auth-error})
       (wrap-authentication (basic/http-basic-backend {:realm "Swagger" :authfn http-basic-authfn}))))
@@ -87,7 +96,7 @@
   [payload]
   (println "Arguments should have the following edn format: '{:user \"user\" :role :jwt-user}'")
   (mount.core/start #'{{project-ns}}.config/config)
-  (let [data (clojure.edn/read-string payload)
+  (let [data  (clojure.edn/read-string payload)
         token (jwt/sign data (:jwt_key config))]
     (println "Please use the following 'Authorization' header:")
     (println (str "Token " token))
@@ -96,9 +105,9 @@
 
 ;;;middleware
 (defn wrap-auth [handler cfg]
-  (let [session-backend (session-backend cfg)
-        jwt-backend (jwt-backend cfg)
-        token-backend (token-backend cfg)]
+  (let [jwt-backend     (jwt-backend (:jwt_key cfg))
+        session-backend (session-backend)
+        token-backend   (token-backend)]
     (-> handler
         (wrap-authorization session-backend)
         (wrap-authentication session-backend)

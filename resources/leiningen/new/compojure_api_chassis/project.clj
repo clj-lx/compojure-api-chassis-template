@@ -44,9 +44,6 @@
                  {{/pgsql-hook?}}
                  ]
 
-  ;:repositories {"local" ~(str (.toURI (java.io.File. "local_repo")))}
-  :checksum :ignore
-
   :aot [{{project-ns}}.main clojure.tools.logging.impl] ;; clojure.tools.logging.impl
   :main {{project-ns}}.main
   :repl-options {:init-ns user

@@ -42,8 +42,8 @@
 
    :pgsql-hook?  (fn [block] (if (pgsql? opts)  (str block "") ""))
    :html-hook? (fn [block] (if (html? opts) (str block "") ""))
-   :oauth2-hook? (fn [block] (if (oauth2? opts) (str block "") ""))
-   })
+   :oauth2-hook? (fn [block] (if (oauth2? opts) (str block "") ""))})
+
 
 
 (defn format-files-args [name opts]
@@ -64,21 +64,22 @@
               ["src/{{sanitized}}/config.clj" (render "src/chassis/config.clj" data)]
 
               ["src/{{sanitized}}/utils/logging.clj" (render "src/chassis/utils/logging.clj" data)]
+              ["src/{{sanitized}}/utils/middleware.clj" (render "src/chassis/utils/middleware.clj" data)]
               ["src/{{sanitized}}/auth/rules.clj" (render "src/chassis/auth/rules.clj" data)]
               ["src/{{sanitized}}/services/math.clj" (render "src/chassis/services/math.clj" data)]
 
               ["src/{{sanitized}}/handlers/auth.clj" (render "src/chassis/handlers/auth.clj" data)]
               ["src/{{sanitized}}/handlers/spec.clj" (render "src/chassis/handlers/spec.clj" data)]
 
-              ["test/{{sanitized}}/handlers/spec_test.clj" (render "test/chassis/handlers/spec_test.clj" data)]
-              ]
+              ["test/{{sanitized}}/handlers/spec_test.clj" (render "test/chassis/handlers/spec_test.clj" data)]]
+
 
         ;;psql
         args (if (pgsql? opts)
                (conj args
                      ["src/{{sanitized}}/db.clj" (render "src/chassis/db.clj" data)]
-                     ["resources/migrations/init.sql" (render "resources/migrations/init.sql" data)]
-                     )
+                     ["resources/migrations/init.sql" (render "resources/migrations/init.sql" data)])
+
                args)
 
         ;;html/html
@@ -87,10 +88,10 @@
                      ["src/{{sanitized}}/handlers/web.clj" (render "src/chassis/handlers/web.clj" data)]
                      ["resources/public/lisplogo_256.png" (raw "resources/public/lisplogo_256.png")]
                      ["resources/templates/index.html" (render "resources/templates/index.html" data)]
-                     ["resources/templates/session.html" (render "resources/templates/session.html" data)]
-                     )
-               args)
-        ]
+                     ["resources/templates/session.html" (render "resources/templates/session.html" data)])
+
+               args)]
+
     args))
 
 ;;docstring is for using > lein new :show compojure-api-chassis

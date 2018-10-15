@@ -8,6 +8,7 @@
             [metrics.ring.instrument :refer [instrument instrument-by uri-prefix]]
             [{{project-ns}}.auth.rules :as auth-rules]
             [{{project-ns}}.config :refer [config]]
+            [{{project-ns}}.utils.middleware :as mw]
             {{#html-hook?}}
             [{{project-ns}}.handlers.web]
             {{/html-hook?}}
@@ -32,42 +33,27 @@
     {{project-ns}}.handlers.spec/routes
     {{#html-hook?}}
     {{project-ns}}.handlers.spec/routes
-    {{/html-hook?}}
-    ))
-
-(defn- dev-middleware
-  "dev middleware for rendering a friendly error page when a parsing error occurs"
-  [handler cfg]
-  (if (:dev cfg)
-    (-> handler (wrap-stacktrace))
-    handler))
-
-(defn- basic-auth-middleware
-  [handler cfg]
-  "basic-auth middleware for swagger in non-dev mode"
-  (if (:dev cfg)
-    handler
-    (-> handler
-        (auth-rules/wrap-basic-auth cfg))))
+    {{/html-hook?}}))
 
 (defn- api-app
   "api routes"
   [cfg]
   (-> swagger-api
-      {{#html-hook?}}(basic-auth-middleware cfg){{/html-hook?}}
+      {{#html-hook?}}
+      (mw/basic-auth-middleware cfg){{/html-hook?}}
       (auth-rules/wrap-auth cfg)))
 
 {{#html-hook?}}
 (defn- ui-app
   "html app routes"
   [cfg]
-  (-> {{project-ns}}.handlers.web/app))
- {{/html-hook?}}
+  (-> {{project-ns}}.handlers.web/app)){{/html-hook?}}
 
-(defn app [cfg]
-
+(defn app
+  [cfg]
   (-> (compojure.core/routes (api-app cfg) {{#html-hook?}}(ui-app cfg){{/html-hook?}})
-      (dev-middleware cfg)
+      (mw/dev-middleware cfg)
+      (mw/wrap-uuid)
       ;;session is important enough to be declared here
       (wrap-session {:cookie-name (:cookie_name cfg)
                      :store       (cookie-store {:key (:cookie_key cfg)})})
