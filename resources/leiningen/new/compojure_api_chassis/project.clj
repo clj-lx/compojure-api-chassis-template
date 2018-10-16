@@ -41,9 +41,9 @@
                  [org.postgresql/postgresql "42.2.5.jre7"]
                  [hikari-cp "2.6.0"]
                  [migratus "1.0.9"]
-                 {{/pgsql-hook?}}
-                 ]
+                 {{/pgsql-hook?}}]
 
+  :min-lein-version "2.0.0"
   :aot [{{project-ns}}.main clojure.tools.logging.impl] ;; clojure.tools.logging.impl
   :main {{project-ns}}.main
   :repl-options {:init-ns user

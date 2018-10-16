@@ -7,6 +7,39 @@
   (:import [java.io File]))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; helper methods for jdbc parsing
+
+(defn- create-uri [url] (URI. url))
+
+(defn- parse-username-and-password [^URI uri]
+  (clojure.string/split (.getUserInfo uri) #":"))
+
+(defn- subname [^URI uri]
+  (format "//%s:%s%s" (.getHost uri) (.getPort uri) (.getPath uri)))
+
+(defn- scheme [^URI uri]
+  (let [s (.getScheme uri)]
+    (cond (= "jdbc" s) s
+          (= "postgres" s) "jdbc:postgresql"
+          :default (str "jdbc:" s))))
+
+(defn parse-jdbc-url
+  "Converts a DATABASE_URL to a JDBC-friendly connection string"
+  [url]
+  (let [uri    (create-uri url)
+        jdbc   (subname uri)
+        scheme (scheme uri)
+        [username password] (parse-username-and-password uri)]
+    (format "%s:%s?user=%s&password=%s"
+            scheme
+            jdbc
+            username
+            password)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; helper methods for loading .env files
+
 (defn- read-env-file
   "read environment variable definitions from file into a map."
   ([^File file]
@@ -34,6 +67,9 @@
   (let [kvs (read-env-file (io/as-file file))]
     (doseq [[k v] kvs]
       (System/setProperty k v))))
+
+;;;;;;;;;;;;
+;; main code
 
 (defn init [cli-args]
   (cfg/define
@@ -78,6 +114,7 @@
      :database_url           {:description "jdbc database url"
                               :type        :string
                               :required    true
+                              :parser      parse-jdbc-url
                               :default     "jdbc:postgresql://localhost:5432/{{project-ns}}"}
      {{/pgsql-hook?}}
      {{#oauth2-hook?}}

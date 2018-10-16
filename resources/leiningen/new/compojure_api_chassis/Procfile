@@ -1,4 +1,4 @@
 web: java $JVM_OPTS -jar target/{{name}}.jar
 {{#pgsql-hook?}}
-release: lein migratus migrate
+release: lein migrations migrate
 {{/pgsql-hook?}}
