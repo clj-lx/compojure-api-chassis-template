@@ -61,7 +61,7 @@
   {:client-id     (:oauth2_client_id cfg)
    :client-secret (:oauth2_client_secret cfg)
    :callback      {:domain (or (:oauth2_redirect_domain cfg)
-                               (str "http://localhost:" (:server_port cfg)))
+                               (str "http://localhost:" (:port cfg)))
                    :path   (:oauth2_redirect_path cfg)}})
 
 (defn uri-config [client-config]

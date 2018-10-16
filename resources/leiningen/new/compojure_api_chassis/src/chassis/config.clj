@@ -107,7 +107,7 @@
                               :secret      true
                               :required    :true}
 
-     :server_port            {:description "port where the server will run"
+     :port                   {:description "port where the server will run"
                               :type        :number
                               :default     3000}
      {{#pgsql-hook?}}
@@ -130,7 +130,7 @@
                               :type        :string
                               :default     "/oauth2callback"}
 
-     :oauth2_redirect_domain {:description "oauth2 redirect domain; the port should be the same as `:server_port`"
+     :oauth2_redirect_domain {:description "oauth2 redirect domain; the port should be the same as `:port`"
                               :default     "http://localhost:3000"
                               :type        :string}
      {{/oauth2-hook?}}})

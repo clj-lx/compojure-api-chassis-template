@@ -5,7 +5,7 @@
             [ring.adapter.jetty :refer [run-jetty]]))
 
 (defstate server
-  :start (run-jetty (handler/app config) {:port   (:server_port config)
+  :start (run-jetty (handler/app config) {:port   (:port config)
                                           ;;friend doesn't support async handlers
                                           :async? false 
                                           :join?  false})
