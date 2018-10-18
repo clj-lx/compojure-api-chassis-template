@@ -33,7 +33,6 @@
       (str "invalid options supplied: " (clojure.string/join " " invalid-opts)
            "\nvalid options are: " (join " " valid-opts)))))
 
-
 (defn template-data [name opts]
   {:full-name    name
    :name         (project-name name)
@@ -44,10 +43,8 @@
    :html-hook?   (fn [block] (if (html? opts) (str block "") ""))
    :oauth2-hook? (fn [block] (if (oauth2? opts) (str block "") ""))})
 
-
-
 (defn format-files-args [name opts]
-  (println "template opts:" opts)
+  (main/info "template opts:" opts)
   (let [data (template-data name opts)
         args [data
               ["project.clj" (render "project.clj" data)]
@@ -92,7 +89,6 @@
                      ["resources/templates/session.html" (render "resources/templates/session.html" data)])
 
                args)]
-
     args))
 
 ;;docstring is for using > lein new :show compojure-api-chassis

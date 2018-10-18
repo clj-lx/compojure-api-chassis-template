@@ -32,6 +32,10 @@ An application for FIXME.
 {{/oauth2-hook?}}  
 * reloaded workflow through `mount` and `dev/user.clj`   
 
+#### Plugins
+
+* lein-marginalia for docs
+* lein-eftest for an alternative test runner
 
 ## Usage
 

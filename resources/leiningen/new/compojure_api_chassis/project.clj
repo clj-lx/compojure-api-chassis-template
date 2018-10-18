@@ -72,5 +72,6 @@
                                         [ring/ring-mock "0.3.2"]
                                         [eftest "0.5.2"]
                                         [clj-stacktrace "0.2.8"]]
-                       :plugins        [[lein-ring "0.12.3"]
+                       :plugins        [[lein-marginalia "0.9.1"]
+                                        [lein-ring "0.12.3"]
                                         [lein-eftest "0.5.2"]]}})
