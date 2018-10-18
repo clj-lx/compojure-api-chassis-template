@@ -19,8 +19,8 @@
 
 (def valid-opts ["+pgsql" "+html" "+oauth2"])
 
-(defn pgsql?  [opts] (some #{"+pgsql"}  opts))
-(defn html?   [opts] (some #{"+html"} opts))
+(defn pgsql? [opts] (some #{"+pgsql"} opts))
+(defn html? [opts] (some #{"+html"} opts))
 (defn oauth2? [opts] (some #{"+oauth2"} opts))
 
 (defn validate-opts [opts]
@@ -35,25 +35,26 @@
 
 
 (defn template-data [name opts]
-  {:full-name name
-   :name (project-name name)
-   :project-ns (sanitize-ns name)
-   :sanitized (name-to-path name)
+  {:full-name    name
+   :name         (project-name name)
+   :project-ns   (sanitize-ns name)
+   :sanitized    (name-to-path name)
 
-   :pgsql-hook?  (fn [block] (if (pgsql? opts)  (str block "") ""))
-   :html-hook? (fn [block] (if (html? opts) (str block "") ""))
+   :pgsql-hook?  (fn [block] (if (pgsql? opts) (str block "") ""))
+   :html-hook?   (fn [block] (if (html? opts) (str block "") ""))
    :oauth2-hook? (fn [block] (if (oauth2? opts) (str block "") ""))})
 
 
 
 (defn format-files-args [name opts]
+  (println "template opts:" opts)
   (let [data (template-data name opts)
         args [data
               ["project.clj" (render "project.clj" data)]
               ["Procfile" (render "Procfile" data)]
-              ["README.md"  (render "README.md" data)]
-              [".gitignore"  (render ".gitignore" data)]
-              ["config.edn"  (render "config.edn" data)]
+              ["README.md" (render "README.md" data)]
+              [".gitignore" (render ".gitignore" data)]
+              ["config.edn" (render "config.edn" data)]
               ["resources/logback.xml" (render "resources/logback.xml" data)]
 
               ["dev/user.clj" (render "dev/user.clj" data)]

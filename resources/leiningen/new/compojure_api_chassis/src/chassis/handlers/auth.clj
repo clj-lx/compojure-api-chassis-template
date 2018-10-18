@@ -2,6 +2,7 @@
   (:require [compojure.api.sweet :refer [context GET POST resource]]
             [ring.util.http-response :refer [ok found bad-request]]            
             [buddy.auth :refer [authenticated?]]
+            [{{project-ns}}.config :refer [config]]
             [{{project-ns}}.auth.rules :as auth-rules]))
 
 (def routes
@@ -9,6 +10,11 @@
     (context "/auth" []
       :tags ["auth"]
       :coercion :spec
+
+      (GET "/config" []
+        :summary "gets the current system configuration"
+        :auth-rules auth-rules/authenticated
+        (ok config))
 
       (GET "/session" request
         :summary "gets the current user's session.

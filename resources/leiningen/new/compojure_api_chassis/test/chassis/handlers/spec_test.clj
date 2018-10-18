@@ -5,8 +5,8 @@
             [mount.core :as mount]
             [{{project-ns}}.handler :as handler]
             [{{project-ns}}.auth.rules :as rules]
-            [{{project-ns}}.config :refer [config]]
-            ))
+            [{{project-ns}}.config :refer [config]]))
+
 
 (defn parse-body [body]
   (cheshire/parse-string (slurp body) true))
@@ -51,7 +51,7 @@
             res (app req)]
         (is (= 400 (:status res)))))
 
-    (testing "should fail with 403 when token is invalid"
+    (testing "should fail with 401 when token is invalid"
       (let [req (create-request "/api/spec/plus?x=1&y=2" :auth "invalid")
             res (app req)]
-        (is (= 403 (:status res)))))))
+        (is (= 401 (:status res)))))))

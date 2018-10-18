@@ -1,13 +1,23 @@
 <configuration debug="false">
- <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>[%X{uuid}] %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-10contextName %logger{36} - %msg%n</pattern>
-    </encoder>
-  </appender>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-10contextName %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
 
-  <logger name="org.eclipse" level="INFO"/>
+    <appender name="WEBCONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%X{uuid}] %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-10contextName %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
 
-  <root level="INFO">
-    <appender-ref ref="CONSOLE"/>
-  </root>
+    <logger name="org.eclipse" level="INFO"/>
+
+    <logger name="dashboard.handlers" level="INFO">
+        <appender-ref ref="WEBCONSOLE"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
 </configuration>

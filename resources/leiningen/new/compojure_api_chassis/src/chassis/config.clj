@@ -4,7 +4,8 @@
             [clojure.string :as str]
             [clojure.tools.logging :as log]
             [clojure.java.io :as io])
-  (:import [java.io File]))
+  (:import [java.io File]
+           [java.net URI]))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -13,29 +14,30 @@
 (defn- create-uri [url] (URI. url))
 
 (defn- parse-username-and-password [^URI uri]
-  (clojure.string/split (.getUserInfo uri) #":"))
+  (if-let [userpass (.getUserInfo uri)]
+    (clojure.string/split userpass #":")))
 
 (defn- subname [^URI uri]
   (format "//%s:%s%s" (.getHost uri) (.getPort uri) (.getPath uri)))
 
 (defn- scheme [^URI uri]
   (let [s (.getScheme uri)]
-    (cond (= "jdbc" s) s
-          (= "postgres" s) "jdbc:postgresql"
+    (cond (= "postgres" s) "jdbc:postgresql"
           :default (str "jdbc:" s))))
 
 (defn parse-jdbc-url
   "Converts a DATABASE_URL to a JDBC-friendly connection string"
   [url]
-  (let [uri    (create-uri url)
-        jdbc   (subname uri)
-        scheme (scheme uri)
-        [username password] (parse-username-and-password uri)]
-    (format "%s:%s?user=%s&password=%s"
-            scheme
-            jdbc
-            username
-            password)))
+  (if (str/starts-with? url "jdbc")
+    url
+    (let [uri (create-uri url)
+          jdbc (subname uri)
+          scheme (scheme uri)
+          [username password] (parse-username-and-password uri)]
+      (println (and username password) scheme jdbc)
+      (if (and username password)
+        (format "%s:%s?user=%s&password=%s" scheme jdbc username password)
+        (format "%s:%s" scheme jdbc)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; helper methods for loading .env files
@@ -89,7 +91,7 @@
                               :type        :edn
                               :required    true}
 
-     :cookie_name            {:descritpion "cookie name"
+     :cookie_name            {:description "cookie name"
                               :type        :string
                               :default     "{{project-ns}}-session"}
 
@@ -111,7 +113,7 @@
                               :type        :number
                               :default     3000}
      {{#pgsql-hook?}}
-     :database_url           {:description "jdbc database url"
+     :database_url           {:description "database url"
                               :type        :string
                               :required    true
                               :parser      parse-jdbc-url
