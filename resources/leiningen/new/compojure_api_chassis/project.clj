@@ -11,6 +11,9 @@
                  [mount "0.1.13"]
                  [metosin/compojure-api "2.0.0-alpha21"]
                  [metosin/spec-tools "0.7.1"]
+                 {{#cheshire-hook?}}
+                 [metosin/muuntaja-cheshire "0.6.1"]
+                 {{/cheshire-hook?}}
                  [manifold "0.1.6"]
                  [com.grammarly/omniconf "0.3.2"]
                  [robert/hooke "1.3.0"]

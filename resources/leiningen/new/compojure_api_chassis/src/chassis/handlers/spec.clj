@@ -5,8 +5,8 @@
             [clojure.spec.alpha :as s]
             [spec-tools.spec :as spec]
             [spec-tools.core :as st]
-
             [metrics.ring.expose :refer [render-metrics serve-metrics]]
+            [{{project-ns}}.models.person :as person]
             [{{project-ns}}.auth.rules :as auth-rules]
             [{{project-ns}}.services.math :as svc])
   (:import [java.io File]))
@@ -37,6 +37,10 @@
     (context "/spec" []
       :tags ["spec"]
       :coercion :spec
+
+      (GET "/person" request
+        :summary "gets the person, using a custom encoder"
+        (ok (person/->Person "dude" 21)))
 
       (GET "/session" request
         :summary "gets the session"

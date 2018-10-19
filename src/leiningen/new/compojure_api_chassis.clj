@@ -17,11 +17,12 @@
 (defn indent [n list]
   (wrap-indent identity n list))
 
-(def valid-opts ["+pgsql" "+html" "+oauth2"])
+(def valid-opts ["+pgsql" "+html" "+oauth2" "+cheshire"])
 
-(defn pgsql? [opts] (some #{"+pgsql"} opts))
-(defn html? [opts] (some #{"+html"} opts))
-(defn oauth2? [opts] (some #{"+oauth2"} opts))
+(defn pgsql?    [opts] (some #{"+pgsql"} opts))
+(defn html?     [opts] (some #{"+html"} opts))
+(defn oauth2?   [opts] (some #{"+oauth2"} opts))
+(defn cheshire? [opts] (or true (some #{"+cheshire"} opts)))
 
 (defn validate-opts [opts]
   (let [invalid-opts (remove (set valid-opts) opts)]
@@ -41,7 +42,9 @@
 
    :pgsql-hook?  (fn [block] (if (pgsql? opts) (str block "") ""))
    :html-hook?   (fn [block] (if (html? opts) (str block "") ""))
-   :oauth2-hook? (fn [block] (if (oauth2? opts) (str block "") ""))})
+   :oauth2-hook? (fn [block] (if (oauth2? opts) (str block "") ""))
+   :cheshire-hook? (fn [block] (if (cheshire? opts) (str block "") ""))
+   :jsonista-hook? (fn [block] (if (not (cheshire? opts)) (str block "") ""))})
 
 (defn format-files-args [name opts]
   (main/info "template opts:" opts)
@@ -68,6 +71,7 @@
 
               ["src/{{sanitized}}/handlers/auth.clj" (render "src/chassis/handlers/auth.clj" data)]
               ["src/{{sanitized}}/handlers/spec.clj" (render "src/chassis/handlers/spec.clj" data)]
+              ["src/{{sanitized}}/models/person.clj" (render "src/chassis/models/person.clj" data)]
 
               ["test/{{sanitized}}/handlers/spec_test.clj" (render "test/chassis/handlers/spec_test.clj" data)]]
 
@@ -96,9 +100,10 @@
   "Usage:
     > lein new compojure-api-chassis <opts>
   Options are:
-  +pgsql:  use postgres
-  +html:   use html templating
-  +oauth2: use oauth2 for html templating
+  +pgsql:    use postgres
+  +html:     use html templating
+  +oauth2:   use oauth2 for html templating
+  +cheshire: use cheshire for json
   "
   [name & opts]
   (main/info "Generating fresh 'lein new' compojure-api-chassis project.")

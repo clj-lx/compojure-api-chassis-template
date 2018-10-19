@@ -6,9 +6,14 @@
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
             [ring.middleware.session.cookie :refer [cookie-store]]
             [metrics.ring.instrument :refer [instrument instrument-by uri-prefix]]
+            [muuntaja.core :as muuntaja]
+            {{#cheshire-hook?}}
+            [muuntaja.format.cheshire]
+            {{/cheshire-hook?}}
             [{{project-ns}}.auth.rules :as auth-rules]
             [{{project-ns}}.config :refer [config]]
             [{{project-ns}}.utils.middleware :as mw]
+            [{{project-ns}}.models.person :as person]
             {{#html-hook?}}
             [{{project-ns}}.handlers.web]
             {{/html-hook?}}
@@ -17,7 +22,20 @@
 
 (def swagger-api
   (api
-    {:swagger
+    {:formats
+     {{#cheshire-hook?}}
+     (assoc-in
+       muuntaja/default-options
+       [:formats "application/json"]
+       muuntaja.format.cheshire/format)
+     {{/cheshire-hook?}}
+     {{#jsonista-hook?}}
+     (assoc-in
+       muuntaja/default-options
+       [:formats "application/json" :encoder 1]
+       (partial {:encoders person/encoder})) ;;check jsonista docs: https://cljdoc.xyz/d/metosin/jsonista/0.2.2/api/jsonista
+     {{/jsonista-hook?}}
+     :swagger
      {:ui   "/swagger"
       :spec "/swagger.json"
       :data {:info                {:title       "Microservices {{full-name}} using compojure-api 2.0"
