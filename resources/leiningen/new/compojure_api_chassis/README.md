@@ -18,6 +18,9 @@ An application for FIXME.
   * see `http://localhost:3000/api/spec/metrics` 
 * env loading (omniconf) 
   * https://github.com/grammarly/omniconf
+{{#cheshire-hook?}}
+* cheshire with custom json encoding for `Person` record
+{{/cheshire-hook?}} 
 {{#pgsql-hook?}}
 * db migrations (migratus & migratus-lein)
  * https://github.com/yogthos/migratus#quick-start-leiningen-2x

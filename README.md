@@ -23,6 +23,8 @@ These components cannot be swapped out.
 
 These are optional. 
 
+* Cheshire for json
+ * https://github.com/dakrone/cheshire
 * Friend & buddy for oauth & auth
  * https://github.com/clojusc/friend-oauth2
  * https://github.com/funcool/buddy-auth
@@ -34,5 +36,5 @@ These are optional.
 
 ## Usage
 
-> lein new compojure-api-chassis myapp +pgsql +html +oauth2
+> lein new compojure-api-chassis myapp +pgsql +html +oauth2 +cheshire
 
