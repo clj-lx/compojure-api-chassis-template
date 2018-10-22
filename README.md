@@ -24,14 +24,14 @@ These components cannot be swapped out.
 These are optional. 
 
 * Cheshire for json
- * https://github.com/dakrone/cheshire
+  * https://github.com/dakrone/cheshire
 * Friend & buddy for oauth & auth
- * https://github.com/clojusc/friend-oauth2
- * https://github.com/funcool/buddy-auth
+  * https://github.com/clojusc/friend-oauth2
+  * https://github.com/funcool/buddy-auth
 * db migrations (migratus & migratus-lein)
- * https://github.com/yogthos/migratus#quick-start-leiningen-2x
+  * https://github.com/yogthos/migratus#quick-start-leiningen-2x
 * Selmer for html rendering
- * https://github.com/yogthos/Selmer
+  * https://github.com/yogthos/Selmer
 * tracing TODO
 
 ## Usage
