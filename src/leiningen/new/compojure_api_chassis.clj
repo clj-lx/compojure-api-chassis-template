@@ -34,11 +34,21 @@
       (str "invalid options supplied: " (clojure.string/join " " invalid-opts)
            "\nvalid options are: " (join " " valid-opts)))))
 
+(defn rand-hex [len]
+  (-> (repeatedly (inc (/ len 6)) #(format "%x" (rand-int 16rFFFFFF)))
+      (clojure.string/join)
+      (.substring 0 len)))
+
 (defn template-data [name opts]
   {:full-name    name
    :name         (project-name name)
    :project-ns   (sanitize-ns name)
    :sanitized    (name-to-path name)
+   
+   :swagger-pw   (rand-hex 10)
+   :api-token    (rand-hex 10)
+   :jwt-key      (rand-hex 10)
+   :cookie-key   (rand-hex 16)
 
    :pgsql-hook?  (fn [block] (if (pgsql? opts) (str block "") ""))
    :html-hook?   (fn [block] (if (html? opts) (str block "") ""))
