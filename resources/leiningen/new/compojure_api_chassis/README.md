@@ -37,8 +37,18 @@ An application for FIXME.
 
 #### Plugins
 
-* lein-marginalia for docs
-* lein-eftest for an alternative test runner
+* [lein-marginalia](https://gdeer81.github.com/marginalia/) for docs
+* [lein-eftest](https://github.com/weavejester/eftest) for an alternative test runner
+
+#### !! Disclaimer !!
+
+Compojure-api supports `core.async` channels and manifold's `deferred`, however if you
+turn on async support with `:async?  false` on the handler config, bear in mind that some middlewares don't support
+async yet:
+
+* Friend: https://github.com/clojusc/friend-oauth2/issues/89 (open issue)
+* buddy-autg: https://github.com/funcool/buddy-auth/pull/78 (merged, waiting for release)
+* metrics-clojure: https://github.com/metrics-clojure/metrics-clojure/pull/134 (merged, waiting for release)
 
 ## Usage
 
