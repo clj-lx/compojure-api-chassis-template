@@ -22,7 +22,7 @@
 (defn pgsql?    [opts] (some #{"+pgsql"} opts))
 (defn html?     [opts] (some #{"+html"} opts))
 (defn oauth2?   [opts] (some #{"+oauth2"} opts))
-(defn cheshire? [opts] (or true (some #{"+cheshire"} opts)))
+(defn cheshire? [opts] (some #{"+cheshire"} opts))
 
 (defn validate-opts [opts]
   (let [invalid-opts (remove (set valid-opts) opts)]
