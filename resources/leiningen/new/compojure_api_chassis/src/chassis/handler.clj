@@ -57,7 +57,7 @@
     {{project-ns}}.handlers.auth/routes
     {{project-ns}}.handlers.spec/routes
     {{#not-html-hook?}}
-    home->swagger
+    (undocumented home->swagger)
     {{/not-html-hook?}}
     {{#html-hook?}}
     {{project-ns}}.handlers.spec/routes
