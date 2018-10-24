@@ -36,5 +36,5 @@ These are optional.
 
 ## Usage
 
-> lein new compojure-api-chassis myapp +pgsql +html +oauth2 +cheshire
+> lein new compojure-api-chassis myapp +pgsql +html +oauth2 +cheshire +heroku
 

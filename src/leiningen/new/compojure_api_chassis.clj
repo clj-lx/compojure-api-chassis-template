@@ -2,7 +2,8 @@
   (:require [leiningen.new.templates :refer [renderer raw-resourcer name-to-path ->files
                                              sanitize sanitize-ns project-name]]
             [leiningen.core.main :as main]
-            [clojure.string :refer [join]]))
+            [clojure.string :refer [join]])
+  (:import (org.apache.commons.lang RandomStringUtils)))
 
 (def render (renderer "compojure-api-chassis"))
 (def raw (raw-resourcer "compojure-api-chassis"))
@@ -17,12 +18,13 @@
 (defn indent [n list]
   (wrap-indent identity n list))
 
-(def valid-opts ["+pgsql" "+html" "+oauth2" "+cheshire"])
+(def valid-opts ["+pgsql" "+html" "+oauth2" "+cheshire" "+heroku"])
 
-(defn pgsql?    [opts] (some #{"+pgsql"} opts))
-(defn html?     [opts] (some #{"+html"} opts))
-(defn oauth2?   [opts] (some #{"+oauth2"} opts))
+(defn pgsql? [opts] (some #{"+pgsql"} opts))
+(defn html? [opts] (some #{"+html"} opts))
+(defn oauth2? [opts] (some #{"+oauth2"} opts))
 (defn cheshire? [opts] (some #{"+cheshire"} opts))
+(defn heroku? [opts] (some #{"+heroku"} opts))
 
 (defn validate-opts [opts]
   (let [invalid-opts (remove (set valid-opts) opts)]
@@ -34,24 +36,33 @@
       (str "invalid options supplied: " (clojure.string/join " " invalid-opts)
            "\nvalid options are: " (join " " valid-opts)))))
 
-(defn template-data [name opts]
-  {:full-name    name
-   :name         (project-name name)
-   :project-ns   (sanitize-ns name)
-   :sanitized    (name-to-path name)
+(defn rand-hex [n]
+  (RandomStringUtils/randomAlphanumeric n))
 
-   :pgsql-hook?  (fn [block] (if (pgsql? opts) (str block "") ""))
-   :html-hook?   (fn [block] (if (html? opts) (str block "") ""))
-   :oauth2-hook? (fn [block] (if (oauth2? opts) (str block "") ""))
-   :cheshire-hook? (fn [block] (if (cheshire? opts) (str block "") ""))
-   :jsonista-hook? (fn [block] (if (not (cheshire? opts)) (str block "") ""))})
+(defn template-data [name opts]
+  {:full-name       name
+   :name            (project-name name)
+   :project-ns      (sanitize-ns name)
+   :sanitized       (name-to-path name)
+
+   :jwt_key         (rand-hex 10)
+   :cookie_key      (rand-hex 16)
+   :api_token       (rand-hex 16)
+   :basic_auth_pass (rand-hex 10)
+
+   :pgsql-hook?     (fn [block] (if (pgsql? opts) (str block "") ""))
+   :html-hook?      (fn [block] (if (html? opts) (str block "") ""))
+   :not-html-hook?  (fn [block] (if (not (html? opts)) (str block "") ""))
+   :oauth2-hook?    (fn [block] (if (oauth2? opts) (str block "") ""))
+   :cheshire-hook?  (fn [block] (if (cheshire? opts) (str block "") ""))
+   :jsonista-hook?  (fn [block] (if (not (cheshire? opts)) (str block "") ""))
+   :heroku-hook?    (fn [block] (if (heroku? opts) (str block "") ""))})
 
 (defn format-files-args [name opts]
   (main/info "template opts:" opts)
   (let [data (template-data name opts)
         args [data
               ["project.clj" (render "project.clj" data)]
-              ["Procfile" (render "Procfile" data)]
               ["README.md" (render "README.md" data)]
               [".gitignore" (render ".gitignore" data)]
               ["config.edn" (render "config.edn" data)]
@@ -75,6 +86,12 @@
 
               ["test/{{sanitized}}/handlers/spec_test.clj" (render "test/chassis/handlers/spec_test.clj" data)]]
 
+        ;;heroku
+        args (if (heroku? opts)
+               (conj args
+                     ["Procfile" (render "Procfile" data)]
+                     ["app.json" (render "app.json" data)])
+               args)
 
         ;;psql
         args (if (pgsql? opts)

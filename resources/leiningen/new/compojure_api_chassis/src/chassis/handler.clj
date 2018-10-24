@@ -20,6 +20,13 @@
             [{{project-ns}}.handlers.auth]
             [{{project-ns}}.handlers.spec]))
 
+{{#not-html-hook?}}
+;; route / to swagger because we dont have html
+(def home->swagger
+  (GET "/" []
+       (redirect "/swagger")))
+{{/not-html-hook?}}
+
 (def swagger-api
   (api
     {:formats
@@ -49,6 +56,9 @@
                                              :in   "header"}}}}}
     {{project-ns}}.handlers.auth/routes
     {{project-ns}}.handlers.spec/routes
+    {{#not-html-hook?}}
+    home->swagger
+    {{/not-html-hook?}}
     {{#html-hook?}}
     {{project-ns}}.handlers.spec/routes
     {{/html-hook?}}))
@@ -57,8 +67,7 @@
   "api routes"
   [cfg]
   (-> swagger-api
-      {{#html-hook?}}
-      (mw/basic-auth-middleware cfg){{/html-hook?}}
+      (mw/basic-auth-middleware cfg)
       (auth-rules/wrap-auth cfg)))
 
 {{#html-hook?}}

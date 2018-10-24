@@ -1,11 +1,11 @@
-(ns {{project-ns}}.config
+(ns {{project-ns}} .config
   (:require [omniconf.core :as cfg]
-            [mount.core :refer [defstate]]
-            [clojure.string :as str]
-            [clojure.tools.logging :as log]
-            [clojure.java.io :as io])
+    [mount.core :refer [defstate]]
+    [clojure.string :as str]
+    [clojure.tools.logging :as log]
+    [clojure.java.io :as io])
   (:import [java.io File]
-           [java.net URI]))
+    [java.net URI]))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -54,8 +54,8 @@
               (map #(str/split % #"(\s*=\s*)|(:\s+)"))
               (map (fn [[k v]]
                      (case v
-                       "\"\"" [k  ""]
-                       nil    [k nil]
+                       "\"\"" [k ""]
+                       nil [k nil]
                        [k (str/replace v #"[\"]" "")])))
               (into {})))
        (catch Throwable e
@@ -73,69 +73,76 @@
 ;;;;;;;;;;;;
 ;; main code
 
-(defn init [cli-args]
+(defn init
+  "Defines the app configuration keys. Keys will have a flat structure to ensure compatibility with eg. heroku,
+  and because nested keys get a double underscore `PARENT__CHILD` which may be unexpected"
+  [cli-args]
   (cfg/define
-    {:help                   {:description      "prints this help message"
-                              :help-name        "main app"
-                              :help-description "available settings. see https://github.com/grammarly/omniconf#configuration-scheme-syntax for more info"}
+    {:help                  {:description      "prints this help message"
+                             :help-name        "main app"
+                             :help-description "available settings. see https://github.com/grammarly/omniconf#configuration-scheme-syntax for more info"}
 
-     :dev                    {:description "indicates if we are in development mode; values '0' and 'false' are false"
-                              :type        :boolean
-                              :default     true}
+     :dev                   {:description "indicates if we are in development mode; values '0' and 'false' are false"
+                             :type        :boolean
+                             :default     true}
 
-     :conf-file              {:description "config file"
-                              :type        :string
-                              :default     "config.edn"}
+     :conf-file             {:description "config file"
+                             :type        :string
+                             :default     "config.edn"}
 
-     :api_tokens             {:description "edn map of `{<token> :role}` tokens that should be sent on the 'Authorization: Token <token>' header"
-                              :type        :edn
-                              :required    true}
+     :api_tokens            {:description "edn map of `{<token> :role}` tokens that should be sent on the 'Authorization: Token <token>' header"
+                             :type        :edn
+                             :required    true}
 
-     :cookie_name            {:description "cookie name"
-                              :type        :string
-                              :default     "{{project-ns}}-session"}
+     :cookie_name           {:description "cookie name"
+                             :type        :string
+                             :default     "{{project-ns}}-session"}
 
-     :cookie_key             {:description "cookie encryption key"
-                              :type        :string
-                              :secret      true
-                              :required    true}
+     :cookie_key            {:description "cookie encryption key"
+                             :type        :string
+                             :secret      true
+                             :required    true}
 
-     :swagger_ui_basic_auth  {:description " a `username:password` pair basic-auth on swagger ui"
-                              :type        "string"
-                              :secret      true}
+     :swagger_ui_basic_auth {:description "a `username:password` pair basic-auth on swagger ui"
+                             :type        "string"
+                             :secret      true}
 
-     :jwt_key                {:description "jwt key for signing jwt tokens"
-                              :type        :string
-                              :secret      true
-                              :required    :true}
+     :swagger_ui_route      {:description "location of swagger ui"
+                             :type "string"
+                             :default "/swagger"}
 
-     :port                   {:description "port where the server will run"
-                              :type        :number
-                              :default     3000}
+     :jwt_key               {:description "jwt key for signing jwt tokens"
+                             :type        :string
+                             :secret      true
+                             :required    :true}
+
+     :port                  {:description "port where the server will run"
+                             :type        :number
+                             :default     3000}
      {{#pgsql-hook?}}
-     :database_url           {:description "database url"
-                              :type        :string
-                              :required    true
-                              :parser      parse-jdbc-url
-                              :default     "jdbc:postgresql://localhost:5432/{{project-ns}}"}
-     {{/pgsql-hook?}}
-     {{#oauth2-hook?}}
-     :oauth2_client_id       {:description "oauth2 client id; see https://console.developers.google.com"
-                              :type        :string
-                              :secret      true
-                              :required    true}
-     :oauth2_client_secret   {:description "oauth2 client token; see https://console.developers.google.com"
-                              :type        :string
-                              :secret      true
-                              :required    true}
-     :oauth2_redirect_path   {:description "oauth2 redirect path; see https://console.developers.google.com"
-                              :type        :string
-                              :default     "/oauth2callback"}
+     :database_url          {:description "database url"
+                             :type        :string
+                             :required    true
+                             :parser      parse-jdbc-url
+                             :default     "jdbc:postgresql://localhost:5432/{{project-ns}}"}
+      {{/pgsql-hook?}}
+      {{#oauth2-hook?}}
+      :oauth2_client_id {:description "oauth2 client id; see https://console.developers.google.com"
+                          :type        :string
+                          :secret      true
+                          :required    true}
+      :oauth2_client_secret {:description "oauth2 client token; see https://console.developers.google.com"
+                             :type        :string
+                             :secret      true
+                             :required    true}
+      :oauth2_redirect_path {:description "oauth2 redirect path; see https://console.developers.google.com"
+                             :type        :string
+                             :default     "/oauth2callback"}
 
-     :oauth2_redirect_domain {:description "oauth2 redirect domain; the port should be the same as `:port`"
-                              :default     "http://localhost:3000"
-                              :type        :string}
-     {{/oauth2-hook?}}})
+      :oauth2_redirect_domain {:description "oauth2 redirect domain; the port should be the same as `:port`"
+                               :default     "http://localhost:3000"
+                               :type        :string}
+      {{/oauth2-hook?}}})
 
 
   (cfg/populate-from-cmd cli-args)

@@ -1,0 +1,34 @@
+{
+  "name": "{{sanitized}}",
+  "description": "{{sanitized}} app",
+  "env": {
+    "DEV": {
+      "description": "Defines if development mode is active",
+      "value": false
+    },
+    "JWT_KEY": {
+      "description": "Defines if development mode is active",
+      "value": "{{jwt_key}}"
+    },
+    "COOKIE_KEY": {
+      "description": "Defines if development mode is active",
+      "value": "{{cookie_key}}"
+    },
+    "API_TOKEN": {
+      "description": "Defines if development mode is active",
+      "value": "{{api_token}}"
+    },
+    "BASIC_AUTH_PASS": {
+      "description": "Defines if development mode is active",
+      "value": ""
+    }
+  },
+  "image": "heroku/clojure",
+  "environments": {
+    "test": {
+      "scripts": {
+        "test": "lein test"
+      }
+    }
+  }
+}
