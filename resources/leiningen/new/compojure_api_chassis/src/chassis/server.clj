@@ -7,7 +7,7 @@
 (defstate server
   :start (run-jetty (handler/app config) {:port   (:port config)
                                           ;;friend doesn't support async handlers
-                                          :async? false 
+                                          :async? {{async-support?}}
                                           :join?  false})
   :stop (.stop server))                  
   

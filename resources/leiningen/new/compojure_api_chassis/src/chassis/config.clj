@@ -1,4 +1,4 @@
-(ns {{project-ns}} .config
+(ns {{project-ns}}.config
   (:require [omniconf.core :as cfg]
     [mount.core :refer [defstate]]
     [clojure.string :as str]
@@ -103,12 +103,13 @@
                              :secret      true
                              :required    true}
 
-     :swagger_ui_basic_auth {:description "a `username:password` pair basic-auth on swagger ui"
-                             :type        "string"
+     :swagger_ui_auth       {:description "a `username:password` pair basic-auth on swagger ui"
+                             :type        :string
+                             :default     "{{name}}:{{basic_auth_pass}}"
                              :secret      true}
 
      :swagger_ui_route      {:description "location of swagger ui"
-                             :type "string"
+                             :type        :string
                              :default "/swagger"}
 
      :jwt_key               {:description "jwt key for signing jwt tokens"

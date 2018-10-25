@@ -2,6 +2,10 @@
   "name": "{{sanitized}}",
   "description": "{{sanitized}} app",
   "env": {
+    "JVM_OPTS":{
+      "description": "JVM opts passed to web app",
+      "value": "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap "
+    },
     "DEV": {
       "description": "Defines if development mode is active",
       "value": false
@@ -18,12 +22,17 @@
       "description": "Defines if development mode is active",
       "value": "{{api_token}}"
     },
-    "BASIC_AUTH_PASS": {
+    "SWAGGER_UI_AUTH": {
       "description": "Defines if development mode is active",
-      "value": ""
+      "value": "{{sanitized}}:{{basic_auth_pass}}"
     }
   },
   "image": "heroku/clojure",
+  "formation": {
+    "release": {
+      "size": "standard-2x"
+    }
+  },
   "environments": {
     "test": {
       "scripts": {

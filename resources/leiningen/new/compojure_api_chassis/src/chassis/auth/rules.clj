@@ -76,6 +76,7 @@
    :body    value})
 
 (defn valid-basic-auth? [username password]
+  (log/info "comparing" (:swagger_ui_auth config) "with" (str username ":" password))
   (buddy.core.bytes/equals? (:swagger_ui_auth config)
                             (str username ":" password)))
 

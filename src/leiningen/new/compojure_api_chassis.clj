@@ -18,13 +18,14 @@
 (defn indent [n list]
   (wrap-indent identity n list))
 
-(def valid-opts ["+pgsql" "+html" "+oauth2" "+cheshire" "+heroku"])
+(def valid-opts ["+pgsql" "+html" "+oauth2" "+cheshire" "+heroku" "+async"])
 
 (defn pgsql? [opts] (some #{"+pgsql"} opts))
 (defn html? [opts] (some #{"+html"} opts))
 (defn oauth2? [opts] (some #{"+oauth2"} opts))
 (defn cheshire? [opts] (some #{"+cheshire"} opts))
 (defn heroku? [opts] (some #{"+heroku"} opts))
+(defn async? [opts] (some #{"+async"} opts))
 
 (defn validate-opts [opts]
   (let [invalid-opts (remove (set valid-opts) opts)]
@@ -49,6 +50,7 @@
    :cookie_key      (rand-hex 16)
    :api_token       (rand-hex 16)
    :basic_auth_pass (rand-hex 10)
+   :async-support?  (not (nil? (async? opts)))
 
    :pgsql-hook?     (fn [block] (if (pgsql? opts) (str block "") ""))
    :html-hook?      (fn [block] (if (html? opts) (str block "") ""))
@@ -86,6 +88,18 @@
 
               ["test/{{sanitized}}/handlers/spec_test.clj" (render "test/chassis/handlers/spec_test.clj" data)]]
 
+        ;;async
+        args (if (async? opts)
+               (do
+                 (conj args
+                       ["local_repo/metrics-clojure-ring/metrics-clojure-ring/3.0.0-SNAPSHOT/metrics-clojure-ring-3.0.0-SNAPSHOT.jar" (raw "local_repo/metrics-clojure-ring/metrics-clojure-ring/3.0.0-SNAPSHOT/metrics-clojure-ring-3.0.0-SNAPSHOT.jar")]
+                       ["local_repo/metrics-clojure-ring/metrics-clojure-ring/3.0.0-SNAPSHOT/metrics-clojure-ring-3.0.0-SNAPSHOT.pom" (raw "local_repo/metrics-clojure-ring/metrics-clojure-ring/3.0.0-SNAPSHOT/metrics-clojure-ring-3.0.0-SNAPSHOT.pom")]
+                       ["local_repo/metrics-clojure/metrics-clojure/3.0.0-SNAPSHOT/metrics-clojure-3.0.0-SNAPSHOT.jar" (raw "local_repo/metrics-clojure/metrics-clojure/3.0.0-SNAPSHOT/metrics-clojure-3.0.0-SNAPSHOT.jar")]
+                       ["local_repo/metrics-clojure/metrics-clojure/3.0.0-SNAPSHOT/metrics-clojure-3.0.0-SNAPSHOT.pom" (raw "local_repo/metrics-clojure/metrics-clojure/3.0.0-SNAPSHOT/metrics-clojure-3.0.0-SNAPSHOT.pom")]
+                       ["local_repo/buddy/buddy-auth/2.1.0/buddy-auth-2.1.0.jar" (raw "local_repo/buddy/buddy-auth/2.1.0/buddy-auth-2.1.0.jar")]
+                       ["local_repo/buddy/buddy-auth/2.1.0/buddy-auth-2.1.0.pom" (raw "local_repo/buddy/buddy-auth/2.1.0/buddy-auth-2.1.0.pom")]))
+
+               args)
         ;;heroku
         args (if (heroku? opts)
                (conj args
@@ -117,10 +131,12 @@
   "Usage:
     > lein new compojure-api-chassis <opts>
   Options are:
-  +pgsql:    use postgres
-  +html:     use html templating
-  +oauth2:   use oauth2 for html templating
-  +cheshire: use cheshire for json
+  +pgsql    use postgres
+  +html     use html templating
+  +oauth2   use oauth2 for html templating
+  +cheshire use cheshire for json
+  +heroku   generate Procfile, app.json for heroku deployment
+  +async    use async handlers & patched jars to support 3-arity handlers
   "
   [name & opts]
   (main/info "Generating fresh 'lein new' compojure-api-chassis project.")
