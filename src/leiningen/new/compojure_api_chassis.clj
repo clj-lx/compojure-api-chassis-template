@@ -60,6 +60,18 @@
    :jsonista-hook?  (fn [block] (if (not (cheshire? opts)) (str block "") ""))
    :heroku-hook?    (fn [block] (if (heroku? opts) (str block "") ""))})
 
+(defn local_repo_files
+  "generates a [file, (raw file)] pair over a list of files to be passed to the project generation"
+  [path]
+  (let [all-files (file-seq (clojure.java.io/file path))
+        repo-dir  (subs path (inc (clojure.string/last-index-of path "/")))]
+    (->> all-files
+         (filter #(.isFile %))
+         (map #(.getPath %))
+         (map #(clojure.string/replace-first % path repo-dir))
+         (map (fn [p] [p (raw p)])))))
+
+
 (defn format-files-args [name opts]
   (main/info "template opts:" opts)
   (let [data (template-data name opts)
@@ -90,16 +102,9 @@
 
         ;;async
         args (if (async? opts)
-               (do
-                 (conj args
-                       ["local_repo/metrics-clojure-ring/metrics-clojure-ring/3.0.0-SNAPSHOT/metrics-clojure-ring-3.0.0-SNAPSHOT.jar" (raw "local_repo/metrics-clojure-ring/metrics-clojure-ring/3.0.0-SNAPSHOT/metrics-clojure-ring-3.0.0-SNAPSHOT.jar")]
-                       ["local_repo/metrics-clojure-ring/metrics-clojure-ring/3.0.0-SNAPSHOT/metrics-clojure-ring-3.0.0-SNAPSHOT.pom" (raw "local_repo/metrics-clojure-ring/metrics-clojure-ring/3.0.0-SNAPSHOT/metrics-clojure-ring-3.0.0-SNAPSHOT.pom")]
-                       ["local_repo/metrics-clojure/metrics-clojure/3.0.0-SNAPSHOT/metrics-clojure-3.0.0-SNAPSHOT.jar" (raw "local_repo/metrics-clojure/metrics-clojure/3.0.0-SNAPSHOT/metrics-clojure-3.0.0-SNAPSHOT.jar")]
-                       ["local_repo/metrics-clojure/metrics-clojure/3.0.0-SNAPSHOT/metrics-clojure-3.0.0-SNAPSHOT.pom" (raw "local_repo/metrics-clojure/metrics-clojure/3.0.0-SNAPSHOT/metrics-clojure-3.0.0-SNAPSHOT.pom")]
-                       ["local_repo/buddy/buddy-auth/2.1.0/buddy-auth-2.1.0.jar" (raw "local_repo/buddy/buddy-auth/2.1.0/buddy-auth-2.1.0.jar")]
-                       ["local_repo/buddy/buddy-auth/2.1.0/buddy-auth-2.1.0.pom" (raw "local_repo/buddy/buddy-auth/2.1.0/buddy-auth-2.1.0.pom")]))
-
+               (apply conj args (local_repo_files "resources/leiningen/new/compojure_api_chassis/local_repo"))
                args)
+
         ;;heroku
         args (if (heroku? opts)
                (conj args
