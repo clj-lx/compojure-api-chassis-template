@@ -69,35 +69,35 @@
         uri (:db cfg)]
     (case cmd
       "init"
-      (with-advisory-lock "dashboard" uri
+      (with-advisory-lock "{{name}}" uri
                           (migratus/init cfg))
 
       "migrate"
-      (with-advisory-lock "dashboard" uri
+      (with-advisory-lock "{{name}}" uri
                           (migratus/migrate cfg))
 
       "up"
-      (with-advisory-lock "dashboard" uri
+      (with-advisory-lock "{{name}}" uri
                           (apply migratus/up cfg args))
 
       "down"
-      (with-advisory-lock "dashboard" uri
+      (with-advisory-lock "{{name}}" uri
                           (apply migratus/down cfg args))
 
       "create"
-      (with-advisory-lock "dashboard" uri
+      (with-advisory-lock "{{name}}" uri
                           (apply migratus/create cfg args))
 
       "reset"
-      (with-advisory-lock "dashboard" uri
+      (with-advisory-lock "{{name}}" uri
                           (migratus/reset cfg))
 
       "pending"
-      (with-advisory-lock "dashboard" uri
+      (with-advisory-lock "{{name}}" uri
                           (apply migratus/pending-list cfg args))
 
       "rollback"
-      (with-advisory-lock "dashboard" uri
+      (with-advisory-lock "{{name}}" uri
                           (migratus/rollback cfg))
 
       (log/info "No command supplied. Please provide one of: init, migrate, up, down, create, reset, pending, rollback "))))
