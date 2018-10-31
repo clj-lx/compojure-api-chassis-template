@@ -44,6 +44,20 @@
                    (make-datasource @datasource-opts))
           :stop (close-datasource datasource))
 
+(defmacro with-advisory-lock
+  "Runs a body withing a advisory lock."
+  [^String key uri & body]
+  `(jdbc/with-db-connection [conn# {:connection-uri ~uri}]
+                            (log/info "Trying to acquire advisory lock" ~key)
+                            (let [[{locked?# :pg_try_advisory_lock}] (jdbc/query conn# [(str "SELECT pg_try_advisory_lock(" (hash ~key) ");")])]
+                              (when locked?#
+                                ~@body)
+                              (if-not locked?#
+                                (log/info "Lock" ~key "was NOT acquired, bailing")
+                                (do
+                                  (log/info "Releasing lock" ~key)
+                                  (jdbc/query conn# [(str "SELECT pg_advisory_unlock(" (hash ~key) ");")])
+                                  (log/info "Lock" ~key "released"))))))
 
 (defn migrations
   "Convenience method for using migratus from lein tasks. Because we have a dependency on mount for configuration reading,
@@ -51,32 +65,41 @@
   [cmd & args]
   (init)
   (log/info cmd args)
-  (case cmd
-    "init"
-    (migratus/init @migrations-config)
+  (let [cfg @migrations-config
+        uri (:db cfg)]
+    (case cmd
+      "init"
+      (with-advisory-lock "dashboard" uri
+                          (migratus/init cfg))
 
-    "migrate"
-    (migratus/migrate @migrations-config)
+      "migrate"
+      (with-advisory-lock "dashboard" uri
+                          (migratus/migrate cfg))
 
-    "up"
-    (apply migratus/up @migrations-config args)
+      "up"
+      (with-advisory-lock "dashboard" uri
+                          (apply migratus/up cfg args))
 
-    "down"
-    (apply migratus/down @migrations-config args)
+      "down"
+      (with-advisory-lock "dashboard" uri
+                          (apply migratus/down cfg args))
 
-    "create"
-    (apply migratus/create @migrations-config args)
+      "create"
+      (with-advisory-lock "dashboard" uri
+                          (apply migratus/create cfg args))
 
-    "reset"
-    (migratus/reset @migrations-config)
+      "reset"
+      (with-advisory-lock "dashboard" uri
+                          (migratus/reset cfg))
 
-    "pending"
-    (apply migratus/pending-list @migrations-config args)
+      "pending"
+      (with-advisory-lock "dashboard" uri
+                          (apply migratus/pending-list cfg args))
 
-    "rollback"
-    (migratus/rollback @migrations-config)
+      "rollback"
+      (with-advisory-lock "dashboard" uri
+                          (migratus/rollback cfg))
 
-    (log/info "No command supplied. Please provide one of: init, migrate, up, down, create, reset, pending, rollback ")))
-
+      (log/info "No command supplied. Please provide one of: init, migrate, up, down, create, reset, pending, rollback "))))
 
 
