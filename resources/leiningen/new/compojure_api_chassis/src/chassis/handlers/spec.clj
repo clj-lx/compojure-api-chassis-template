@@ -18,6 +18,11 @@
 (s/def ::total-map (s/keys :req-un [::total]))
 (s/def ::result-map (s/keys :req-un [::result]))
 
+;;person
+(s/def ::name spec/string?)
+(s/def ::age spec/number?)
+(s/def ::person-map (s/keys :req-un [::name ::age]))
+
 (s/def ::any? any?)
 
 ;; file upload
@@ -38,6 +43,15 @@
       :tags ["spec"]
       :coercion :spec
 
+
+      (POST "/person" request
+        :summary "puts a new person"
+        :return ::person-map
+        :body-params [person :- ::person-map]
+        :responses {200 {:schema ::person-map :description "happy path"}
+                    412 {:schema ::total-map :description "invalidation path"}}
+        (ok "ok"))
+             
       (GET "/person" request
         :summary "gets the person, using a custom encoder"
         (ok (person/->Person "dude" 21)))
