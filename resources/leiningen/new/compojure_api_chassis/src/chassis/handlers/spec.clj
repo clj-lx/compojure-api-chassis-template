@@ -1,6 +1,6 @@
 (ns {{project-ns}}.handlers.spec
   (:require [compojure.api.sweet :refer [context GET POST resource]]
-            [ring.util.http-response :refer [ok]]
+            [ring.util.http-response :refer [ok bad-request]]
             [ring.middleware.multipart-params :as multipart]
             [clojure.spec.alpha :as s]
             [spec-tools.spec :as spec]
@@ -17,6 +17,14 @@
 (s/def ::result spec/int?)
 (s/def ::total-map (s/keys :req-un [::total]))
 (s/def ::result-map (s/keys :req-un [::result]))
+
+;;person
+(s/def ::name spec/string?)
+(s/def ::age spec/number?)
+(s/def ::error spec/string?)
+(s/def ::message spec/string?)
+(s/def ::person-map (s/keys :req-un [::name ::age]))
+(s/def ::bad-request (s/keys :req-un [::error ::message]))
 
 (s/def ::any? any?)
 
@@ -38,6 +46,17 @@
       :tags ["spec"]
       :coercion :spec
 
+      (POST "/person" request
+        :summary "puts a new person"
+        :return ::person-map
+        :body-params [body :- ::person-map]
+        :responses {200 {:schema ::person-map :description "happy path"}
+                    412 {:schema ::bad-request :description "invalidation path"}}
+        (let [{name :name age :age} body]
+          (if (or (nil? name) (nil? age))
+            (bad-request {:error "missing required fields" :message "please fill name and age"})
+            (ok (into {} (person/->Person name age)))))) ;;maps are converted to json, plain records are converted to strings!
+             
       (GET "/person" request
         :summary "gets the person, using a custom encoder"
         (ok (person/->Person "dude" 21)))
