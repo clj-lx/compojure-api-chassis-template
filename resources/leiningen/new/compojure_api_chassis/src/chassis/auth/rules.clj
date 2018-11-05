@@ -64,8 +64,10 @@
     true
     (error "Unauthorized")))
 
-(def basic-auth-rules
-  [{:pattern #"^/swagger/.*" :handler basic-authenticated-user}])
+(defn basic-auth-rules [{route :swagger_ui_route}]
+  (let [pattern (re-pattern (str "^" route "/.*"))]
+    (log/info "Installing basic-auth for swagger for url" route)
+    [{:pattern pattern :handler basic-authenticated-user}]))
 
 (defn on-basic-auth-error [request value]
   (log/info "Unauthorized swagger access. Headers:" (:headers request))
@@ -74,6 +76,7 @@
    :body    value})
 
 (defn valid-basic-auth? [username password]
+  (log/info "comparing" (:swagger_ui_auth config) "with" (str username ":" password))
   (buddy.core.bytes/equals? (:swagger_ui_auth config)
                             (str username ":" password)))
 
@@ -84,9 +87,9 @@
 
 (defn wrap-basic-auth
   "middleware to apply basic-auth, using a \"Swagger\" realm "
-  [handler _]
+  [handler cfg]
   (-> handler
-      (wrap-access-rules {:rules basic-auth-rules :on-error on-basic-auth-error})
+      (wrap-access-rules {:rules (basic-auth-rules cfg) :on-error on-basic-auth-error})
       (wrap-authentication (basic/http-basic-backend {:realm "Swagger" :authfn http-basic-authfn}))))
 
 

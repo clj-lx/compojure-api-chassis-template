@@ -1,0 +1,43 @@
+{
+  "name": "{{sanitized}}",
+  "description": "{{sanitized}} app",
+  "env": {
+    "JVM_OPTS":{
+      "description": "JVM opts passed to web app",
+      "value": "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap "
+    },
+    "DEV": {
+      "description": "Defines if development mode is active",
+      "value": false
+    },
+    "JWT_KEY": {
+      "description": "Defines if development mode is active",
+      "value": "{{jwt_key}}"
+    },
+    "COOKIE_KEY": {
+      "description": "Defines if development mode is active",
+      "value": "{{cookie_key}}"
+    },
+    "API_TOKEN": {
+      "description": "Defines if development mode is active",
+      "value": "{{api_token}}"
+    },
+    "SWAGGER_UI_AUTH": {
+      "description": "Defines if development mode is active",
+      "value": "{{sanitized}}:{{basic_auth_pass}}"
+    }
+  },
+  "image": "heroku/clojure",
+  "formation": {
+    "release": {
+      "size": "standard-2x"
+    }
+  },
+  "environments": {
+    "test": {
+      "scripts": {
+        "test": "lein test"
+      }
+    }
+  }
+}

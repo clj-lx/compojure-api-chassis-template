@@ -5,8 +5,8 @@
  :oauth2_redirect_path "/oauth2callback"
  {{/oauth2-hook?}}
  :database_url "jdbc:postgresql://localhost:5432/{{sanitized}}"
- :swagger_ui_auth "{{sanitized}}:{{swagger-pw}}"
- :api_tokens {"{{api-token}}" {:username "token-user" :role :api}}
- :jwt_key "{{jwt-key}}"
- :cookie_key "{{cookie-key}}"
-}
+ :swagger_ui_auth "{{name}}:{{basic_auth_pass}}"
+ :api_tokens {"{{api_token}}" {:username "token-user" :role :api}}
+ :jwt_key "{{jwt_key}}"
+ :cookie_key "{{cookie_key}}"}
+

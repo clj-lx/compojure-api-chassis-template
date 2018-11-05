@@ -25,10 +25,19 @@
 (defn wrap-uuid
   "adds a `:uuid` field in the request and in the MDC context"
   [handler]
-  (fn [request]
-    (let [uuid (.toString (UUID/randomUUID))]
-      (try
-        (MDC/put "uuid" uuid)
-        (handler (assoc request :uuid uuid))
-        (finally
-          (MDC/clear))))))
+  (fn
+    ([request]
+     (let [uuid (.toString (UUID/randomUUID))]
+       (try
+         (MDC/put "uuid" uuid)
+         (handler (assoc request :uuid uuid))
+         (finally
+           (MDC/clear)))))
+    ([request respond raise]
+     (let [uuid (.toString (UUID/randomUUID))]
+       (try
+         (MDC/put "uuid" uuid)
+         (handler (assoc request :uuid uuid) respond raise)
+         (catch Exception e (raise e))
+         (finally
+           (MDC/clear)))))))

@@ -18,12 +18,21 @@
                  [com.grammarly/omniconf "0.3.2"]
                  [robert/hooke "1.3.0"]
 
+
+                 ;; these are on local_repo
+                 {{#async-support?}}
+                 [buddy/buddy-auth "2.1.0"] ;; waiting release version > 2.1, async support is merged
+                 [metrics-clojure "3.0.0-SNAPSHOT"] ;; waiting release >= 3, async support is merged
+                 [metrics-clojure-ring "3.0.0-SNAPSHOT"] ;; waiting release >= 3, async support is merged
+                 {{/async-support?}}
+
+                 {{^async-support?}}
                  ;;authentication/authorization
                  [buddy/buddy-auth "2.1.0"]
-
                  ;metrics
                  [metrics-clojure "2.10.0"]
                  [metrics-clojure-ring "2.10.0"]
+                 {{/async-support?}}
 
                  ;misc
                  [org.clojure/tools.logging "0.4.1"]
@@ -46,6 +55,11 @@
                  [migratus "1.0.9"]
                  {{/pgsql-hook?}}]
 
+  {{#async-support?}}
+  :repositories {"local" ~(str (.toURI (java.io.File. "local_repo")))}
+  :checksum :ignore
+  {{/async-support?}}
+
   :min-lein-version "2.0.0"
   :aot [{{project-ns}}.main clojure.tools.logging.impl] ;; clojure.tools.logging.impl
   :main {{project-ns}}.main
@@ -55,7 +69,7 @@
   ;; > lein ring server
   :ring {:handler {{project-ns}}.main/app
          :init {{project-ns}}.main/init
-         :async?  false
+         :async?  {{async-support?}}
          :nrepl   {:start? true}
          :uberwar-name "{{name}}.war"}
 

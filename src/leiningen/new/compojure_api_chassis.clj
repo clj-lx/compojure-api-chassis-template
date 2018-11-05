@@ -2,7 +2,8 @@
   (:require [leiningen.new.templates :refer [renderer raw-resourcer name-to-path ->files
                                              sanitize sanitize-ns project-name]]
             [leiningen.core.main :as main]
-            [clojure.string :refer [join]]))
+            [clojure.string :refer [join]])
+  (:import (org.apache.commons.lang RandomStringUtils)))
 
 (def render (renderer "compojure-api-chassis"))
 (def raw (raw-resourcer "compojure-api-chassis"))
@@ -17,12 +18,14 @@
 (defn indent [n list]
   (wrap-indent identity n list))
 
-(def valid-opts ["+pgsql" "+html" "+oauth2" "+cheshire"])
+(def valid-opts ["+pgsql" "+html" "+oauth2" "+cheshire" "+heroku" "+async"])
 
-(defn pgsql?    [opts] (some #{"+pgsql"} opts))
-(defn html?     [opts] (some #{"+html"} opts))
-(defn oauth2?   [opts] (some #{"+oauth2"} opts))
+(defn pgsql? [opts] (some #{"+pgsql"} opts))
+(defn html? [opts] (some #{"+html"} opts))
+(defn oauth2? [opts] (some #{"+oauth2"} opts))
 (defn cheshire? [opts] (some #{"+cheshire"} opts))
+(defn heroku? [opts] (some #{"+heroku"} opts))
+(defn async? [opts] (some #{"+async"} opts))
 
 (defn validate-opts [opts]
   (let [invalid-opts (remove (set valid-opts) opts)]
@@ -34,34 +37,46 @@
       (str "invalid options supplied: " (clojure.string/join " " invalid-opts)
            "\nvalid options are: " (join " " valid-opts)))))
 
-(defn rand-hex [len]
-  (-> (repeatedly (inc (/ len 6)) #(format "%x" (rand-int 16rFFFFFF)))
-      (clojure.string/join)
-      (.substring 0 len)))
+(defn rand-hex [n]
+  (RandomStringUtils/randomAlphanumeric n))
 
 (defn template-data [name opts]
-  {:full-name    name
-   :name         (project-name name)
-   :project-ns   (sanitize-ns name)
-   :sanitized    (name-to-path name)
-   
-   :swagger-pw   (rand-hex 10)
-   :api-token    (rand-hex 10)
-   :jwt-key      (rand-hex 10)
-   :cookie-key   (rand-hex 16)
+  {:full-name       name
+   :name            (project-name name)
+   :project-ns      (sanitize-ns name)
+   :sanitized       (name-to-path name)
 
-   :pgsql-hook?  (fn [block] (if (pgsql? opts) (str block "") ""))
-   :html-hook?   (fn [block] (if (html? opts) (str block "") ""))
-   :oauth2-hook? (fn [block] (if (oauth2? opts) (str block "") ""))
-   :cheshire-hook? (fn [block] (if (cheshire? opts) (str block "") ""))
-   :jsonista-hook? (fn [block] (if (not (cheshire? opts)) (str block "") ""))})
+   :jwt_key         (rand-hex 10)
+   :cookie_key      (rand-hex 16)
+   :api_token       (rand-hex 16)
+   :basic_auth_pass (rand-hex 10)
+   :async-support?  (not (nil? (async? opts)))
+
+   :pgsql-hook?     (fn [block] (if (pgsql? opts) (str block "") ""))
+   :html-hook?      (fn [block] (if (html? opts) (str block "") ""))
+   :not-html-hook?  (fn [block] (if (not (html? opts)) (str block "") ""))
+   :oauth2-hook?    (fn [block] (if (oauth2? opts) (str block "") ""))
+   :cheshire-hook?  (fn [block] (if (cheshire? opts) (str block "") ""))
+   :jsonista-hook?  (fn [block] (if (not (cheshire? opts)) (str block "") ""))
+   :heroku-hook?    (fn [block] (if (heroku? opts) (str block "") ""))})
+
+(defn local_repo_files
+  "generates a [file, (raw file)] pair over a list of files to be passed to the project generation"
+  [path]
+  (let [all-files (file-seq (clojure.java.io/file path))
+        repo-dir  (subs path (inc (clojure.string/last-index-of path "/")))]
+    (->> all-files
+         (filter #(.isFile %))
+         (map #(.getPath %))
+         (map #(clojure.string/replace-first % path repo-dir))
+         (map (fn [p] [p (raw p)])))))
+
 
 (defn format-files-args [name opts]
   (main/info "template opts:" opts)
   (let [data (template-data name opts)
         args [data
               ["project.clj" (render "project.clj" data)]
-              ["Procfile" (render "Procfile" data)]
               ["README.md" (render "README.md" data)]
               [".gitignore" (render ".gitignore" data)]
               ["config.edn" (render "config.edn" data)]
@@ -85,6 +100,17 @@
 
               ["test/{{sanitized}}/handlers/spec_test.clj" (render "test/chassis/handlers/spec_test.clj" data)]]
 
+        ;;async
+        args (if (async? opts)
+               (apply conj args (local_repo_files "resources/leiningen/new/compojure_api_chassis/local_repo"))
+               args)
+
+        ;;heroku
+        args (if (heroku? opts)
+               (conj args
+                     ["Procfile" (render "Procfile" data)]
+                     ["app.json" (render "app.json" data)])
+               args)
 
         ;;psql
         args (if (pgsql? opts)
@@ -110,10 +136,12 @@
   "Usage:
     > lein new compojure-api-chassis <opts>
   Options are:
-  +pgsql:    use postgres
-  +html:     use html templating
-  +oauth2:   use oauth2 for html templating
-  +cheshire: use cheshire for json
+  +pgsql    use postgres
+  +html     use html templating
+  +oauth2   use oauth2 for html templating
+  +cheshire use cheshire for json
+  +heroku   generate Procfile, app.json for heroku deployment
+  +async    use async handlers & patched jars to support 3-arity handlers
   "
   [name & opts]
   (main/info "Generating fresh 'lein new' compojure-api-chassis project.")
