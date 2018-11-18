@@ -92,9 +92,14 @@
 
       (GET "/divide" []
         :return ::result-map
-        :query-params [x :- ::x, {y :- ::y 0}]
+        :query-params [x :- (st/create-spec {:spec ::x :description "a number"})
+                       {y :- ::y 0}]
         :summary "divide two numbers from each other using manifold deferred, timeout 1s"
         :description "result should be an integer, otherwise it cannot be coerced"
+        :responses {200 {:schema ::result-map
+                         :description "Divides two numbers"}
+                    500 {:schema ::any?
+                         :description "Internal error"}}
         (svc/divide x y))
 
       (GET "/multiply" []
