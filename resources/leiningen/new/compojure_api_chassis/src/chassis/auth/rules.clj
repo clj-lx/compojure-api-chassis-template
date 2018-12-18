@@ -35,10 +35,10 @@
   (session/session-backend {:unauthorized-handler handle-unauthorized}))
 
 (defn token-backend []
-  (token/token-backend {:authfn token-authfn :unauthorized-handler handle-unauthorized}))
+  (token/token-backend {:authfn token-authfn :unauthorized-handler handle-unauthorized :token-name "Bearer"}))
 
 (defn jwt-backend [jwt-key]
-  (token/jws-backend {:secret jwt-key :unauthorized-handler handle-unauthorized}))
+  (token/jws-backend {:secret jwt-key :unauthorized-handler handle-unauthorized :token-name "Bearer"}))
 
 ;; restructure params
 (defn api-access-error [request _]
