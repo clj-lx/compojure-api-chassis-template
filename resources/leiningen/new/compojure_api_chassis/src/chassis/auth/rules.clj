@@ -102,7 +102,7 @@
   (let [data  (clojure.edn/read-string payload)
         token (jwt/sign data (:jwt_key config))]
     (println "Please use the following 'Authorization' header:")
-    (println (str "Token " token))
+    (println (str "Bearer " token))
     token))
 
 

@@ -99,10 +99,10 @@ Bear in mind that some endpoints are authenticated/authorized.
 #### Token auth
 
 ```
-> curl -i -X GET  --header 'Authorization: Token 1234567890' 'http://localhost:3001/api/spec/plus?x=1&y=2'
+> curl -i -X GET  --header 'Authorization: Bearer 1234567890' 'http://localhost:3001/api/spec/plus?x=1&y=2'
 {"total":3}
 
-> curl -i -X GET  --header 'Authorization: Token 1234567890' 'http://localhost:3001/api/auth/user'
+> curl -i -X GET  --header 'Authorization: Bearer 1234567890' 'http://localhost:3001/api/auth/user'
 {"username":"token-user","role":"api"}
 ```
 
@@ -115,7 +115,7 @@ Please use the following 'Authorization' header:
 Token eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoidGVzdCIsInJvbGUiOiJqd3QifQ.zzwCRmA95EO0vf1oglSaUHBKU9dvjdDXe_pdQ0jubgI
 
 
-> curl -i -X GET  --header 'Authorization:Token eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoidGVzdCIsInJvbGUiOiJqd3QifQ.zzwCRmA95EO0vf1oglSaUHBKU9dvjdDXe_pdQ0jubgI' 'http://localhost:3001/api/auth/user'
+> curl -i -X GET  --header 'Authorization:Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoidGVzdCIsInJvbGUiOiJqd3QifQ.zzwCRmA95EO0vf1oglSaUHBKU9dvjdDXe_pdQ0jubgI' 'http://localhost:3001/api/auth/user'
 {"user":"test","role":"jwt"}
 ```
 
