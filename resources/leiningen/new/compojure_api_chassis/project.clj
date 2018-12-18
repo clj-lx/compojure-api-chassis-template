@@ -50,7 +50,7 @@
 
                  {{#pgsql-hook?}}
                  ;; SQL
-                 [org.postgresql/postgresql "42.2.5.jre7"]
+                 [org.postgresql/postgresql "42.2.5"]
                  [hikari-cp "2.6.0"]
                  [migratus "1.0.9"]
                  {{/pgsql-hook?}}]

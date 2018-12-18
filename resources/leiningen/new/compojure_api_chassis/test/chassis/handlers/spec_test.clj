@@ -11,8 +11,10 @@
 (defn parse-body [body]
   (cheshire/parse-string (slurp body) true))
 
-(defn  create-request [url & {:keys [method auth accept] 
-                              :or {method :get auth "Token 1234567890" accept "application/json"}}]
+(defn  create-request [url & {:keys [method auth accept]
+                              :or {method :get
+                                   auth (str "Bearer " (first (keys (:api_tokens config))))
+                                   accept "application/json"}}]
   (-> (mock/request method url)
       (mock/header "accept" accept)
       (mock/header "authorization" auth)))
@@ -31,7 +33,7 @@
         jwt_token (buddy.sign.jwt/sign {:user "test" :role :jwt} (:jwt_key config))]
 
     (testing "should 200 OK when submitting a hardcoded token"
-      (let [req  (create-request "/api/spec/plus?x=1&y=2" :auth (str "Token " token))
+      (let [req  (create-request "/api/spec/plus?x=1&y=2" :auth (str "Bearer " token))
             res  (app req)
             body (parse-body (:body res))]
         (is (= 200 (:status res)))
@@ -39,7 +41,7 @@
         (is (clojure.string/starts-with? (get-in res [:headers "Content-Type"]) "application/json"))))
 
     (testing "should 200 OK when submitting a jwt token"
-      (let [req  (create-request "/api/spec/plus?x=1&y=2" :auth (str "Token " jwt_token))
+      (let [req  (create-request "/api/spec/plus?x=1&y=2" :auth (str "Bearer " jwt_token))
             res  (app req)
             body (parse-body (:body res))]
         (is (= 200 (:status res)))
