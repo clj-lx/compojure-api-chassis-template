@@ -1,14 +1,16 @@
 (ns {{project-ns}}.auth.rules
   (:require [compojure.api.meta :refer [restructure-param]]
-            [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
-            [buddy.auth.accessrules :refer [wrap-access-rules error]]
-            [buddy.auth.backends.session :as session]
-            [buddy.auth.backends.token :as token]
-            [buddy.auth.backends.httpbasic :as basic]
-            [buddy.auth :refer [authenticated?]]
-            [buddy.sign.jwt :as jwt]
-            [clojure.tools.logging :as log]
-            [{{project-ns}}.config :refer [config]]))
+    [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
+    [buddy.auth.accessrules :refer [wrap-access-rules error]]
+    [buddy.auth.backends.session :as session]
+    [buddy.auth.backends.token :as token]
+    [buddy.auth.backends.httpbasic :as basic]
+    [buddy.auth :refer [authenticated?]]
+    [buddy.sign.jwt :as jwt]
+    [clojure.tools.logging :as log]
+    [clj-time.core :as time]
+    [{{project-ns}}.config :refer [config]]))
+
 ;; perms
 (defn authenticated [request]
   (authenticated? request))
@@ -27,6 +29,9 @@
     {:status 403 :headers {} :body "Permission denied"}
     {:status 401 :headers {} :body "Unauthorized"}))
 
+(defn on-error-jwt [_req ex]
+  (log/warn "JWT Validation failed" (ex-data ex)))
+
 (defn token-authfn [_ token]
   (log/info "lookup identity for token" token)
   (get-in config [:api_tokens token]))
@@ -37,8 +42,13 @@
 (defn token-backend []
   (token/token-backend {:authfn token-authfn :unauthorized-handler handle-unauthorized :token-name "Bearer"}))
 
-(defn jwt-backend [jwt-key]
-  (token/jws-backend {:secret jwt-key :unauthorized-handler handle-unauthorized :token-name "Bearer"}))
+(defn jwt-backend [jwt-key issuer]
+  (token/jws-backend {:secret               jwt-key
+                      :unauthorized-handler handle-unauthorized
+                      :token-name           "Bearer"
+                      :on-error             on-error-jwt
+                      :options              {:iss issuer
+                                             :aud "{{name}}"}}))
 
 ;; restructure params
 (defn api-access-error [request _]
@@ -94,21 +104,29 @@
 
 
 ;;helper method to sign a payload from console
+;;TODO add basic claims: https://funcool.github.io/buddy-sign/latest/#claims-validation
 (defn jwt-sign
   "Convenience method to sign an object from the console"
-  [payload]
-  (println "Arguments should have the following edn format: '{:user \"user\" :role :jwt-user}'")
-  (mount.core/start #'{{project-ns}}.config/config)
-  (let [data  (clojure.edn/read-string payload)
-        token (jwt/sign data (:jwt_key config))]
-    (println "Please use the following 'Authorization' header:")
-    (println (str "Token " token))
-    token))
+  ([payload] (jwt-sign payload (:jwt_key config)))
+  ([payload secret]
+   (println "Arguments should have the following edn format: '{:user \"user\" :role :jwt-user :aud \"audience\"  }'")
+   (mount.core/start #'{{name}}.config/config)
+   (let [data   (clojure.edn/read-string payload)
+         now    (time/now)
+
+         claims {:iss (:jwt_issuer config)
+                 :iat now
+                 :exp (time/plus now (time/minutes 5))
+                 :nbf now}
+         token  (jwt/sign (merge claims data) secret)]
+     (println "Please use the following 'Authorization' header:")
+     (println (str "Bearer " token))
+     token)))
 
 
 ;;;middleware
 (defn wrap-auth [handler cfg]
-  (let [jwt-backend     (jwt-backend (:jwt_key cfg))
+  (let [jwt-backend     (jwt-backend (:jwt_key cfg) (:jwt_issuer cfg))
         session-backend (session-backend)
         token-backend   (token-backend)]
     (-> handler

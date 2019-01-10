@@ -117,6 +117,11 @@
                              :secret      true
                              :required    :true}
 
+     :jwt_issuer            {:description "jwt 'iss' for claim validation"
+                             :type        :string
+                             :default     "{{name}}"
+                             :required    :true}
+
      :port                  {:description "port where the server will run"
                              :type        :number
                              :default     3000}
