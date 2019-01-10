@@ -106,7 +106,7 @@
 ;;helper method to sign a payload from console
 ;;TODO add basic claims: https://funcool.github.io/buddy-sign/latest/#claims-validation
 (defn jwt-sign
-  "Convenience method to sign an object from the console"
+  "Convenience method to sign an object from the console")
   ([payload] (jwt-sign payload (:jwt_key config)))
   ([payload secret]
    (println "Arguments should have the following edn format: '{:user \"user\" :role :jwt-user :aud \"audience\"  }'")
@@ -121,7 +121,7 @@
          token  (jwt/sign (merge claims data) secret)]
      (println "Please use the following 'Authorization' header:")
      (println (str "Bearer " token))
-     token)))
+     token))
 
 
 ;;;middleware
