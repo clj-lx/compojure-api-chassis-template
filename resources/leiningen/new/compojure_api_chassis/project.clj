@@ -1,6 +1,6 @@
 (defproject {{full-name}} "0.1.0-SNAPSHOT"
   :description "Compojure-api 2.0.0 alpha microservices chassis"
-  :dependencies [[org.clojure/clojure "1.9.0"]
+  :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/core.async "0.4.474"]
 
                  ;;server & api
@@ -75,20 +75,22 @@
 
   :aliases {"verify"     ["run" "-m" "{{project-ns}}.main/verify"]
             {{#pgsql-hook?}} "migrations" ["run" "-m" "{{project-ns}}.db/migrations"] {{/pgsql-hook?}}
-            "jwt-sign"   ["run" "-m" "{{project-ns}}.auth.rules/jwt-sign"]}
+            "jwt-sign"   ["run" "-m" "{{project-ns}}.auth.rules/jwt-sign"]
+             "kaocha"    ["with-profile" "+kaocha" "run" "-m" "kaocha.runner"]}
 
   :uberjar-name "{{name}}.jar"
   :profiles {:uberjar {:aot :all
                        :main {{project-ns}}.main}
-
+             :kaocha     {:dependencies [[lambdaisland/kaocha "0.0-319"]
+                                         [lambdaisland/kaocha-cloverage "0.0-22"]]}
              :production {:env {:prod true}}
 
              :dev     {:source-paths   ["dev"]
                        :resource-paths ["resources"]
                        :dependencies   [[ring/ring-devel "1.6.3"]
                                         [ring/ring-mock "0.3.2"]
-                                        [eftest "0.5.2"]
-                                        [clj-stacktrace "0.2.8"]]
+                                        [clj-stacktrace "0.2.8"]
+                                        [lambdaisland/kaocha "0.0-319"]]
                        :plugins        [[lein-marginalia "0.9.1"]
-                                        [lein-ring "0.12.3"]
-                                        [lein-eftest "0.5.2"]]}})
+                                        [lein-ring "0.12.3"]]
+                       :jvm-opts       ["-Dclojure.spec.check-asserts=true"]}})

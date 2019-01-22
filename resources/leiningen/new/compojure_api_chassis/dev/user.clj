@@ -3,6 +3,8 @@
             [mount.core :as mount]
             [mount.tools.graph :refer [states-with-deps]]
             [clojure.tools.namespace.repl :as tn]
+            [clojure.test :refer :all]
+            [kaocha.repl]
             [{{project-ns}}.utils.logging :refer [with-logging-status]]
             [{{project-ns}}.config :refer [config]]
             {{#pgsql-hook?}}
@@ -39,3 +41,12 @@
   (tn/refresh :after 'user/go))
 
 (mount/in-clj-mode)
+
+
+(defn testall []
+  (user/refresh)
+  (clojure.test/run-all-tests #"{{project-ns}}.*"))
+
+(defn ktestall []
+  (user/refresh)
+  (kaocha.repl/run :unit))
