@@ -104,7 +104,7 @@
            {{/oauth2-hook?}}
 
            (route/resources "/public")
-           (route/not-found "<h1>Page not found</h1>"))
+           §)
 
 {{#oauth2-hook?}}
 (defn unauthorized-handler

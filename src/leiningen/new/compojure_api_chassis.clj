@@ -31,7 +31,7 @@
   (let [invalid-opts (remove (set valid-opts) opts)]
     (cond
       (and (some #{"+oauth2"} opts) (not (some #{"+html"} opts)))
-      ("you can't use oauth2 without html")
+      (str "you can't use oauth2 without html")
 
       (seq invalid-opts)
       (str "invalid options supplied: " (clojure.string/join " " invalid-opts)
