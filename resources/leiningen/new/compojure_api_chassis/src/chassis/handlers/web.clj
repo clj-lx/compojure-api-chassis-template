@@ -103,8 +103,7 @@
            (friend/logout (ANY "/logout" req (response/redirect "/")))
            {{/oauth2-hook?}}
 
-           (route/resources "/public")
-           §)
+           (route/resources "/public"))
 
 {{#oauth2-hook?}}
 (defn unauthorized-handler
