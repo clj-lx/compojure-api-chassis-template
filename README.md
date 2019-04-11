@@ -2,14 +2,21 @@
 
 A Leiningen template for compojure-api microservices chassis.
 
+
+## Usage
+
+> lein new compojure-api-chassis myapp +pgsql +html +oauth2 +cheshire +heroku
+
+
 ### TODO
 
-* [ ] backport (from prophet) spec for :local-date to chassis
-* [x] backport (from prophet) jwt stuff to chassis
-* [ ] backport (from prophet) exception handling stuff to chassis
-* [ ] backport (from prophet) `:middleware` from compojure-api to chassis
-* [ ] backport (from prophet) custom middleware to chassis
-
+* [ ] backport (from prophet) rollbar stuff
+* [x] backport (from prophet) jwt stuff
+* [ ] generate app.json from config
+* [ ] backport (from prophet) exception handling stuff
+* [ ] backport (from prophet) `:middleware` from compojure-api
+* [ ] backport (from prophet) custom middleware
+* [ ] backport (from prophet) spec for :local-date
 
 
 ### Core
@@ -43,8 +50,4 @@ These are optional.
 * Selmer for html rendering
   * https://github.com/yogthos/Selmer
 * tracing TODO
-
-## Usage
-
-> lein new compojure-api-chassis myapp +pgsql +html +oauth2 +cheshire +heroku
 
