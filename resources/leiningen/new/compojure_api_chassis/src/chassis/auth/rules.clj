@@ -124,6 +124,15 @@
      token)))
 
 
+
+
+
+
+
+
+
+
+
 ;;;middleware
 (defn wrap-auth [handler cfg]
   (let [jwt-backend     (jwt-backend (:jwt_key cfg) (:jwt_issuer cfg))
