@@ -103,35 +103,45 @@
       (wrap-authentication (basic/http-basic-backend {:realm "Swagger" :authfn http-basic-authfn}))))
 
 
-;;helper method to sign a payload from console
-;;TODO add basic claims: https://funcool.github.io/buddy-sign/latest/#claims-validation
 (defn jwt-sign
-  "Convenience method to sign an object from the console"
-  ([payload] (jwt-sign payload (:jwt_key config)))
-  ([payload secret]
-   (println "Arguments should have the following edn format: '{:user \"user\" :role :jwt-user :aud \"audience\"  }'")
-   (mount.core/start #'{{name}}.config/config)
-   (let [data   (clojure.edn/read-string payload)
-         now    (time/now)
+  ([data]
+   (jwt-sign data (:jwt_key config)))
+  ([data secret]
+   (mount.core/start #'{{project-ns}}.config/config)
+   (let [now    (time/now)
 
-         claims {:iss (:jwt_issuer config)
+         claims {:iss (first (:jwt_issuer config))
                  :iat now
-                 :exp (time/plus now (time/minutes 5))
+                 :exp (time/plus now (time/days 7))
                  :nbf now}
-         token  (jwt/sign (merge claims data) secret)]
+         obj    (merge claims data)
+         token  (jwt/sign obj secret {:alg :hs512})]
+     token)))
+
+
+;;helper method to sign a payload from console
+(defn jwt-sign-payload
+  "Convenience method to sign an object from the console"
+  ([^String payload]
+   (jwt-sign-payload payload (:jwt_key config)))
+  ([^String payload secret]
+   (println "Arguments should have the following edn format: '{:claim \"value\":aud \"audience\"  }'")
+   (let [obj   (clojure.edn/read-string payload)
+         token (jwt-sign obj secret)]
+     (println "Payload\n" (cheshire.core/generate-string obj))
      (println "Please use the following 'Authorization' header:")
      (println (str "Bearer " token))
      token)))
 
 
-
-
-
-
-
-
-
-
+(defn jwt-validate-token
+  "Validates a token. See `{{project-ns}}.auth.rules/jwt-backend`"
+  ([token]
+   (jwt-validate-token token (:jwt_key config)))
+  ([token secret]
+   (jwt/unsign token secret {:alg :hs512
+                             :iss (:jwt_issuer config)
+                             :aud "{{name}}"})))
 
 ;;;middleware
 (defn wrap-auth [handler cfg]

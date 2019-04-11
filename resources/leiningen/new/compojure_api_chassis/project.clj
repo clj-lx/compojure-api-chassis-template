@@ -9,7 +9,7 @@
                  [ring/ring-defaults "0.3.2"]
                  [ring/ring-devel "1.7.0"]
                  [mount "0.1.13"]
-                 [metosin/compojure-api "2.0.0-alpha21"]
+                 [metosin/compojure-api "2.0.0-alpha30"]
                  [metosin/spec-tools "0.7.1"]
                  {{#cheshire-hook?}}
                  [metosin/muuntaja-cheshire "0.6.1"]
@@ -17,7 +17,6 @@
                  [manifold "0.1.6"]
                  [com.grammarly/omniconf "0.3.2"]
                  [robert/hooke "1.3.0"]
-
 
                  ;; these are on local_repo
                  {{#async-support?}}
@@ -75,8 +74,8 @@
 
   :aliases {"verify"     ["run" "-m" "{{project-ns}}.main/verify"]
             {{#pgsql-hook?}} "migrations" ["run" "-m" "{{project-ns}}.db/migrations"] {{/pgsql-hook?}}
-            "jwt-sign"   ["run" "-m" "{{project-ns}}.auth.rules/jwt-sign"]
-             "kaocha"    ["with-profile" "+kaocha" "run" "-m" "kaocha.runner"]}
+            "jwt-sign"   ["run" "-m" "{{project-ns}}.auth.rules/jwt-sign-payload"]
+            "kaocha"    ["with-profile" "+kaocha" "run" "-m" "kaocha.runner"]}
 
   :uberjar-name "{{name}}.jar"
   :profiles {:uberjar {:aot :all
