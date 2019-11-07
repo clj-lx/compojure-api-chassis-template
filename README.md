@@ -2,15 +2,6 @@
 
 A Leiningen template for compojure-api microservices chassis.
 
-### TODO
-
-* [ ] backport (from prophet) spec for :local-date to chassis
-* [x] backport (from prophet) jwt stuff to chassis
-* [ ] backport (from prophet) exception handling stuff to chassis
-* [ ] backport (from prophet) `:middleware` from compojure-api to chassis
-* [ ] backport (from prophet) custom middleware to chassis
-
-
 
 ### Core
 
