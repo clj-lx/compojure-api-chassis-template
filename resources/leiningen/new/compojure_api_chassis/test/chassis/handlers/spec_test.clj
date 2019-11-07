@@ -49,7 +49,7 @@
         (is (clojure.string/starts-with? (get-in res [:headers "Content-Type"]) "application/json"))))
 
     (testing "should fail with 400 when arguments don't conform"
-      (let [req (create-request "/api/spec/plus?x=1&y=xxx")
+      (let [req (create-request "/api/spec/plus?x=1&y=xxx" :auth (str "Bearer " token))
             res (app req)]
         (is (= 400 (:status res)))))
 
