@@ -86,6 +86,11 @@
                              :type        :boolean
                              :default     true}
 
+     :environment           {:description "the app environment"
+                             :type        :string
+                             :default     "development"
+                             :one-of      ["development" "test" "staging" "production"]}
+
      :conf-file             {:description "config file"
                              :type        :string
                              :default     "config.edn"}
@@ -131,24 +136,24 @@
                              :required    true
                              :parser      parse-jdbc-url
                              :default     "jdbc:postgresql://localhost:5432/{{project-ns}}"}
-      {{/pgsql-hook?}}
-      {{#oauth2-hook?}}
-      :oauth2_client_id {:description "oauth2 client id; see https://console.developers.google.com"
-                          :type        :string
-                          :secret      true
-                          :required    true}
-      :oauth2_client_secret {:description "oauth2 client token; see https://console.developers.google.com"
-                             :type        :string
-                             :secret      true
-                             :required    true}
-      :oauth2_redirect_path {:description "oauth2 redirect path; see https://console.developers.google.com"
-                             :type        :string
-                             :default     "/oauth2callback"}
+     {{/pgsql-hook?}}
+     {{#oauth2-hook?}}
+     :oauth2_client_id {:description "oauth2 client id; see https://console.developers.google.com"
+                         :type        :string
+                         :secret      true
+                         :required    true}
+     :oauth2_client_secret {:description "oauth2 client token; see https://console.developers.google.com"
+                            :type        :string
+                            :secret      true
+                            :required    true}
+     :oauth2_redirect_path {:description "oauth2 redirect path; see https://console.developers.google.com"
+                            :type        :string
+                            :default     "/oauth2callback"}
 
-      :oauth2_redirect_domain {:description "oauth2 redirect domain; the port should be the same as `:port`"
-                               :default     "http://localhost:3000"
-                               :type        :string}
-      {{/oauth2-hook?}}})
+     :oauth2_redirect_domain {:description "oauth2 redirect domain; the port should be the same as `:port`"
+                              :default     "http://localhost:3000"
+                              :type        :string}
+     {{/oauth2-hook?}}})
 
 
   (cfg/populate-from-cmd cli-args)

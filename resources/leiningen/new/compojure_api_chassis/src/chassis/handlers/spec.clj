@@ -1,5 +1,6 @@
 (ns {{project-ns}}.handlers.spec
   (:require [compojure.api.sweet :refer [context GET POST resource]]
+            [compojure.api.async] ;; ensure async protocols are reified for manifold.deferred and core.async
             [ring.util.http-response :refer [ok bad-request]]
             [ring.middleware.multipart-params :as multipart]
             [clojure.spec.alpha :as s]

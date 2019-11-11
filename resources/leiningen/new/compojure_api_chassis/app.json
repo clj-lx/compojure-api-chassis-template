@@ -10,20 +10,24 @@
       "description": "Defines if development mode is active",
       "value": false
     },
+    "ENVIRONMENT": {
+      "description": "one of development,test,staging,production",
+      "value": "production"
+    },
     "JWT_KEY": {
-      "description": "Defines if development mode is active",
+      "description": "Secret key for jwt sigining",
       "value": "{{jwt_key}}"
     },
     "COOKIE_KEY": {
-      "description": "Defines if development mode is active",
+      "description": "Secret key for cookie signing",
       "value": "{{cookie_key}}"
     },
     "API_TOKEN": {
-      "description": "Defines if development mode is active",
+      "description": "Token for token-based authentication",
       "value": "{{api_token}}"
     },
     "SWAGGER_UI_AUTH": {
-      "description": "Defines if development mode is active",
+      "description": "Credentials for swagger ui",
       "value": "{{sanitized}}:{{basic_auth_pass}}"
     }
   },

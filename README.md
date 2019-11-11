@@ -10,9 +10,10 @@ A Leiningen template for compojure-api microservices chassis.
 
 ### TODO
 
+* [ ] allow project bootstraping
+* [ ] allow using component instead of mount
 * [ ] backport (from prophet) rollbar stuff
 * [x] backport (from prophet) jwt stuff
-* [ ] generate app.json from config
 * [ ] backport (from prophet) exception handling stuff
 * [ ] backport (from prophet) `:middleware` from compojure-api
 * [ ] backport (from prophet) custom middleware

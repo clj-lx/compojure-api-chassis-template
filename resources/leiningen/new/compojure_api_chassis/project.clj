@@ -1,6 +1,6 @@
 (defproject {{full-name}} "0.1.0-SNAPSHOT"
   :description "Compojure-api 2.0.0 alpha microservices chassis"
-  :dependencies [[org.clojure/clojure "1.10.0"]
+  :dependencies [[org.clojure/clojure "1.10.1"]
                  [org.clojure/core.async "0.4.474"]
 
                  ;;server & api
@@ -9,7 +9,7 @@
                  [ring/ring-defaults "0.3.2"]
                  [ring/ring-devel "1.7.0"]
                  [mount "0.1.13"]
-                 [metosin/compojure-api "2.0.0-alpha30"]
+                 [metosin/compojure-api "2.0.0-alpha21"]
                  [metosin/spec-tools "0.7.1"]
                  {{#cheshire-hook?}}
                  [metosin/muuntaja-cheshire "0.6.1"]
@@ -67,7 +67,7 @@
 
   ;; > lein ring server
   :ring {:handler {{project-ns}}.main/app
-         :init {{project-ns}}.main/init
+         ;;:init {{project-ns}}.main/init
          :async?  {{async-support?}}
          :nrepl   {:start? true}
          :uberwar-name "{{name}}.war"}
@@ -91,5 +91,5 @@
                                         [clj-stacktrace "0.2.8"]
                                         [lambdaisland/kaocha "0.0-319"]]
                        :plugins        [[lein-marginalia "0.9.1"]
-                                        [lein-ring "0.12.3"]]
+                                        [lein-ring "0.12.5"]]
                        :jvm-opts       ["-Dclojure.spec.check-asserts=true"]}})

@@ -1,4 +1,4 @@
-(defproject compojure-api-chassis/lein-template "0.1.2"
+(defproject compojure-api-chassis/lein-template "0.1.3"
   :description "A compojure-api chassis with mount, omniconf, buddy and metrics-clojure,
   optionally with postgres/hikari/migratus, selmer and friend-oauth2"
   :url "https://github.com/mping/compojure-api-chassis-template"
