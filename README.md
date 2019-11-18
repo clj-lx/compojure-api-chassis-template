@@ -3,23 +3,6 @@
 A Leiningen template for compojure-api microservices chassis.
 
 
-## Usage
-
-> lein new compojure-api-chassis myapp +pgsql +html +oauth2 +cheshire +heroku
-
-
-### TODO
-
-* [ ] allow project bootstraping
-* [ ] allow using component instead of mount
-* [ ] backport (from prophet) rollbar stuff
-* [x] backport (from prophet) jwt stuff
-* [ ] backport (from prophet) exception handling stuff
-* [ ] backport (from prophet) `:middleware` from compojure-api
-* [ ] backport (from prophet) custom middleware
-* [ ] backport (from prophet) spec for :local-date
-
-
 ### Core
 
 These components cannot be swapped out.
